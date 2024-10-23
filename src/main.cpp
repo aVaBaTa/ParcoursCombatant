@@ -37,10 +37,10 @@ int SonAmbiant;
 float sifflet;
 float ambiant;
 float gammecouleurs[4][2][2] = { //estimation gamme de couleurs dans chaque case sous forme de liste (array)
-    {{0.59910, 0.33246}, {0.62175, 0.33132}},  // Rouge (plus foncee, plus pale)
-    {{0.29899, 0.42739}, {0.26523, 0.44315}},  // Vert
-    {{0.44801, 0.47968}, {0.41618, 0.50511}},  // Jaune
-    {{0.19647, 0.16455}, {0.20428, 0.16201}}  // Bleu
+    {{0.59910, 0.33132}, {0.62175, 0.33246}},  // Rouge (plus foncee, plus pale)
+    {{0.26523, 0.42739}, {0.29899, 0.44315}},  // Vert
+    {{0.41618, 0.47968}, {0.44801, 0.50511}},  // Jaune
+    {{0.19647, 0.16201}, {0.20428, 0.16455}}  // Bleu
     //format: {{/*col1_x*/, /col1_y*/}, {/*col2_x*/, /*col2_y*/}} et prendre note qu<on a pris Yxy pour valeurs
 };
 
@@ -49,15 +49,16 @@ Vos propres fonctions sont creees ici
 */
 
  //Fonction qui converti RGB en chromaticity coordinates (x, y)
- void rgbtoxy (int R,int G,int B){ 
+
+void rgbtoxy (int R,int G,int B){ 
 
   //valeur des chromaticity coordinates (x, y)
-  float X = (-0.14282)*R + (1.54924)*G +(-0.95641)*B;
-  float Y = (-0.68202)*R + (1.57837)*G +(-0.73191)*B;
-  float Z = (-0.14282)*R + (0.77073)*G +(-0.56332)*B;
-  
-  float colx =X/(X+Y+Z);
-  float coly =Y/(X+Y+Z);
+    float X = (-0.14282)*R + (1.54924)*G +(-0.95641)*B;
+    float Y = (-0.32466)*R + (1.57837)*G +(-0.73191)*B;
+    float Z = (-0.68202)*R + (0.77073)*G +(0.56332)*B;
+
+    float colx =X/(X+Y+Z);
+    float coly =Y/(X+Y+Z);
 
  // loop : essay de trouve un match entre la couleur detecte et celle dans la liste de couleurs
     for (int i = 0; i < 4; i++) {
