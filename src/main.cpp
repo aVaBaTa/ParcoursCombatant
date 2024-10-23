@@ -72,7 +72,6 @@ Vos propres fonctions sont creees ici
     return -1;
 }
  
-
 // Réajuster la vitesse des moteurs
 void AjusterVitesse(uint32_t difference, uint32_t droit, uint32_t gauche)
 {
