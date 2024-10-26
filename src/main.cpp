@@ -8,6 +8,26 @@ Date: 10-08-2024
 
 #include "settings.h"
 
+/* Gestion des cerveaux moteurs
+ ajuster la tension VServo qui les alimentes à 7.2V max)*/
+ 
+void initialiserServoMoteur(){
+  SERVO_Enable(LEFT);
+  SERVO_Enable(RIGHT);
+  SERVO_SetAngle(LEFT,0);
+  SERVO_SetAngle(RIGHT,180);
+}
+ 
+void desactiverServoMoteur(){
+  SERVO_Disable(LEFT);
+  SERVO_Disable(RIGHT);
+}
+
+void ramasserObjet(){
+  SERVO_SetAngle(LEFT,90);
+  SERVO_SetAngle(RIGHT,90);
+}
+ 
 
 void setup(){
   BoardInit();
@@ -18,6 +38,7 @@ void setup(){
 
 
 }
+
 
 
 
