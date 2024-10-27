@@ -1,12 +1,21 @@
-/*
-Projet: main.cpp
-Equipe: 09
-Auteurs: Simon Gaudet, Xavier Tremblay, Vincent Dupéré
-Description: Ce programme permet de faire circuler un robot dans un labyrinthe et trouver le bon chemin
-Date: 10-08-2024
-*/
-
 #include "settings.h"
+
+// Pick analog outputs, for the UNO these three work well
+// use ~560  ohm resistor between Red & Blue, ~1K for green (its brighter)
+#define redpin 3
+#define greenpin 5
+#define bluepin 6
+// for a common anode LED, connect the common pin to +5V
+// for common cathode, connect the common to ground
+ 
+// set to false if using a common cathode LED
+#define commonAnode true
+ 
+// our RGB -> eye-recognized gamma color
+byte gammatable[256];
+Adafruit_TCS34725 tcs = Adafruit_TCS34725(TCS34725_INTEGRATIONTIME_50MS, TCS34725_GAIN_4X);
+
+int couleurBut = 0;
 
 /* Gestion des cerveaux moteurs
  ajuster la tension VServo qui les alimentes à 7.2V max)*/
@@ -23,6 +32,126 @@ void desactiverServoMoteur(){
   SERVO_Disable(RIGHT);
 }
 
+void InitialiserCapteurCouleurs()
+{
+  MOTOR_SetSpeed(RIGHT, 0);
+  MOTOR_SetSpeed(LEFT, 0);
+  Serial.println("Color View Test!");
+ 
+  if (tcs.begin()) {
+      Serial.println("Found sensor");
+  } else {
+      Serial.println("No TCS34725 found ... check your connections");
+      while (1); // halt!
+  }
+ 
+  // use these three pins to drive an LED
+  pinMode(redpin, OUTPUT);
+  pinMode(greenpin, OUTPUT);
+  pinMode(bluepin, OUTPUT);
+ 
+  // thanks PhilB for this gamma table!
+  // it helps convert RGB colors to what humans see
+  for (int i = 0; i < 256; i++) {
+      float x = i;
+      x /= 255;
+      x = pow(x, 2.5);
+      x *= 255;
+ 
+      if (commonAnode) {
+          gammatable[i] = 255 - x;
+      } else {
+          gammatable[i] = x;
+      }
+      //Serial.println(gammatable[i]);
+  }
+}
+
+// Détecte la couleur du but et retourne sa valeur
+// 0 = Rouge, 1 = Jaune, Vert = 2, Bleu = 3
+int DetecterCouleur()
+{
+  float sommeR = 0;
+  float sommeG = 0;
+  float sommeB = 0;
+  float moyenneR, moyenneG, moyenneB;
+  int couleurDetectee = 0;
+  for (int i = 0; i < 5; i++)
+  {
+    MOTOR_SetSpeed(RIGHT, 0);
+    MOTOR_SetSpeed(LEFT, 0);
+    uint16_t clear, red, green, blue;
+ 
+    tcs.setInterrupt(false);      // turn on LED
+ 
+    delay(60);  // takes 50ms to read
+ 
+    tcs.getRawData(&red, &green, &blue, &clear);
+ 
+    tcs.setInterrupt(true);  // turn off LED
+ 
+    /*Serial.print("C:\t"); Serial.print(clear);
+    Serial.print("\tR:\t"); Serial.print(red);
+    Serial.print("\tG:\t"); Serial.print(green);
+    Serial.print("\tB:\t"); Serial.print(blue);*/
+ 
+    // Figure out some basic hex code for visualization
+    uint32_t sum = clear;
+    float r, g, b;
+    r = red; r /= sum;
+    g = green; g /= sum;
+    b = blue; b /= sum;
+    r *= 256; g *= 256; b *= 256;
+    /*Serial.print("C:\t"); Serial.print(sum);
+    Serial.print("\tR:\t"); Serial.print(r);
+    Serial.print("\tG:\t"); Serial.print(g);
+    Serial.print("\tB:\t"); Serial.print(b);
+    Serial.print("\t");
+    Serial.print((int)r, HEX); Serial.print((int)g, HEX); Serial.print((int)b, HEX);
+    Serial.println(); */
+    sommeR += r;
+    sommeG += g;
+    sommeB += b;
+    //Serial.print((int)r ); Serial.print(" "); Serial.print((int)g);Serial.print(" ");  Serial.println((int)b );
+ 
+    analogWrite(redpin, gammatable[(int)r]);
+    analogWrite(greenpin, gammatable[(int)g]);
+    analogWrite(bluepin, gammatable[(int)b]);    
+  }
+  moyenneR = sommeR / 5.0;
+  moyenneG = sommeG / 5.0;
+  moyenneB = sommeB / 5.0;
+  Serial.print("Valeur de R : ");
+  Serial.println(moyenneR);
+  Serial.print("Valeur de G : ");
+  Serial.println(moyenneG);
+  Serial.print("Valeur de B : ");
+  Serial.println(moyenneB);
+
+  if (moyenneR > 160 && moyenneG < 80 && moyenneB < 80)
+  {
+    couleurDetectee = 0;
+  }
+  else if (moyenneR > 70 && moyenneG > 70 && moyenneB < 50)
+  {
+    couleurDetectee = 1;
+  }
+  else if (moyenneR < 80 && moyenneG > 100 && moyenneB < 65)
+  {
+    couleurDetectee = 2;
+  }
+  else if (moyenneR < 77 && moyenneG > 75 && moyenneB > 83)
+  {
+    couleurDetectee = 3;
+  }
+  else
+  {
+    couleurDetectee = 4;
+  }
+  return couleurDetectee;
+}
+
+
 void ramasserObjet(){
   SERVO_SetAngle(LEFT,90);
   SERVO_SetAngle(RIGHT,90);
@@ -30,7 +159,9 @@ void ramasserObjet(){
  
 
 void setup(){
+  Serial.begin(9600);
   BoardInit();
+  InitialiserCapteurCouleurs();
   pinMode(vertpin, INPUT);
   pinMode(rougepin, INPUT);
   delay(100);
@@ -39,16 +170,35 @@ void setup(){
 
 void loop()
 {
-
-
-
-
-
-
-
-  Detecteur_IR_Objet();
-
-  delay(500);
+  bumperArr = ROBUS_IsBumper(3);
+  if (bumperArr){
+    if (etat == 0){
+      //suivreLigne();
+      etat = 1;
+      beep(2);
+    }
+    else {
+      beep(1);
+      //desactiverServoMoteur();
+      //initialiserServoMoteur();
+      etat = 0;
+    }
+  }
+  if (etat == 1)
+  {
+    couleurBut = DetecterCouleur();
+    arret();
+    if (couleurBut == 0)
+    {
+      MOTOR_SetSpeed(RIGHT, vitesse);
+      MOTOR_SetSpeed(LEFT, vitesse);
+      delay(500);
+      arret();
+    }   
+  }
+  arret();
+  //Detecteur_IR_Objet();
+  delay(1000);
 }
 
 
@@ -176,7 +326,7 @@ void suivreLigne(){
   if ((ligneMilieu > 640) && (ligneDroite < 40) && (ligneGauche > 610)){
     ajustergauche();
   }
-  /*
+  
     Lorsqu'on est sur le planche blanc
     -------------------------------
             |       Gauche        |
