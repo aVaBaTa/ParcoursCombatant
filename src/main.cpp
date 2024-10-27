@@ -23,8 +23,8 @@ int couleurBut = 0;
 void initialiserServoMoteur(){
   SERVO_Enable(LEFT);
   SERVO_Enable(RIGHT);
-  SERVO_SetAngle(LEFT,0);
-  SERVO_SetAngle(RIGHT,180);
+  SERVO_SetAngle(LEFT,180);
+  SERVO_SetAngle(RIGHT,0);
 }
  
 void desactiverServoMoteur(){
@@ -161,6 +161,7 @@ void ramasserObjet(){
 void setup(){
   Serial.begin(9600);
   BoardInit();
+  initialiserServoMoteur();
   InitialiserCapteurCouleurs();
   pinMode(vertpin, INPUT);
   pinMode(rougepin, INPUT);
@@ -186,14 +187,20 @@ void loop()
   }
   if (etat == 1)
   {
+    arret();
     couleurBut = DetecterCouleur();
     arret();
+    // Si la couleur du but initial détectée est ROUGE
     if (couleurBut == 0)
     {
-      MOTOR_SetSpeed(RIGHT, vitesse);
-      MOTOR_SetSpeed(LEFT, vitesse);
-      delay(500);
-      arret();
+      //Le robot avance de _ pulses pour atteindre la prochaine ligne noire.
+      avance(1500);
+      while (detecteObjet == false)
+      {
+        suivreLigne();
+      }
+      //Le robot doit détecter la ligne noire
+      delay(10000);
     }   
   }
   arret();

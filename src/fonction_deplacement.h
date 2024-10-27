@@ -15,12 +15,21 @@ bool vert = false;
 bool rouge = false;
 int etat = 0; // = 0 arrêt 1 = avance 2 = recule 3 = TourneDroit 4 = TourneGauche
 int etatPast = 0;
-float vitesse = 0.45;
+float vitesse = 0.3;
 int x = 0; // x = 0 initialisation et représente la coordonnée x de la case de départ
 int y = 0; // y = 0 initialisation et représente la coordonnée y de la case de départ
 int regardeFace = 0; // Regarde à : AVANT = 0, GAUCHE = -1, DERRIÈRE = 2 ou -2, DROITE = 1
 int last_move = 0; // est = 1 si x==0 et que le dernier movement est setorientation(1)
 float KP1 = 0.0015;
+
+//Pour le suiveur de ligne
+int CaptLeft = A10;
+int CaptMid = A11;
+int CaptRight = A12;
+int ligneGauche;
+int ligneMilieu;
+int ligneDroite;
+int lastCheck = 0;
 
 
 
@@ -85,7 +94,7 @@ void pause()
   arret();
   delay(100);
 }
-void avance(){
+void avance(int nombre_pulses){
   resetEncodeurs();
   while (pulses_droit < 100)
   {
@@ -95,35 +104,7 @@ void avance(){
     delay(50);
   }
   resetEncodeurs();
-  while (pulses_droit < 5600) // 6300 représente le nombre de pulses avant que la fonction avancer arrête
-  {
-    MOTOR_SetSpeed(RIGHT,vitesse);
-    MOTOR_SetSpeed(LEFT, vitesse);
-    pulses_droit = ENCODER_Read(RIGHT);
-    pulses_gauche = ENCODER_Read(LEFT);
-    PID(pulses_droit, pulses_gauche);
-    delay(50);
-  }
-  resetEncodeurs();
-  while (pulses_droit < 300)
-  {
-    MOTOR_SetSpeed(RIGHT,0.5*vitesse);
-    MOTOR_SetSpeed(LEFT, 0.5*vitesse);
-    pulses_droit = ENCODER_Read(RIGHT);
-  }
-  pause();
-};
-void avance_retour () {
-  resetEncodeurs();
-  while (pulses_droit < 100)
-  {
-    MOTOR_SetSpeed(RIGHT,0.5*vitesse);
-    MOTOR_SetSpeed(LEFT, 0.5*vitesse);
-    pulses_droit = ENCODER_Read(RIGHT);
-    delay(50);
-  }
-  resetEncodeurs();
-  while (pulses_droit < 66000) // 6300 représente le nombre de pulses avant que la fonction avancer arrête
+  while (pulses_droit < nombre_pulses) // 6300 représente le nombre de pulses avant que la fonction avancer arrête
   {
     MOTOR_SetSpeed(RIGHT,vitesse);
     MOTOR_SetSpeed(LEFT, vitesse);
@@ -145,9 +126,9 @@ void recule(){
   MOTOR_SetSpeed(RIGHT, -0.5*vitesse);
   MOTOR_SetSpeed(LEFT, -vitesse);
 };
-void tourneDroit(){
+void tourneDroit(int nombre_pulses){
   resetEncodeurs();
-  while (pulses_gauche < 1930) // 1800 pulses = 950ms représente le nombre de pulses avant que la fonction tourneDroit arrête
+  while (pulses_gauche < nombre_pulses) // 1800 pulses = 950ms représente le nombre de pulses avant que la fonction tourneDroit arrête
   {
     MOTOR_SetSpeed(RIGHT, -0.5*vitesse);
     MOTOR_SetSpeed(LEFT, 0.5*vitesse);
@@ -155,9 +136,9 @@ void tourneDroit(){
   }
   pause();
 };
-void tourneGauche(){
+void tourneGauche(int nombre_pulses){
   resetEncodeurs();
-  while (pulses_droit < 1850) // 1800 pulses = 900ms représente le nombre de pulses avant que la fonction tourneGauche arrête
+  while (pulses_droit < nombre_pulses) // 1800 pulses = 900ms représente le nombre de pulses avant que la fonction tourneGauche arrête
   {
     MOTOR_SetSpeed(RIGHT, 0.5*vitesse);
     MOTOR_SetSpeed(LEFT, -0.5*vitesse);
@@ -165,62 +146,113 @@ void tourneGauche(){
   }
   pause();
 };
-// Permet de réajuster la direction de face du robot en le tournant (physiquement)
-void setOrientation(int direction)
-{
-  if (direction == 0)
+
+
+//FONCTIONS POUR LE SUIVEUR DE LIGNE
+void avanceLent(){
+  resetEncodeurs();
+    MOTOR_SetSpeed(RIGHT,vitesse);
+    MOTOR_SetSpeed(LEFT, vitesse);
+    pulses_droit = ENCODER_Read(RIGHT);
+};
+
+void ajusterdroite(){
+ 
+  resetEncodeurs();
+  ligneMilieu = 0;
+  while (ligneMilieu < 640)
   {
-    // Scénarios possibles :
-    if (regardeFace == -1)
-    {
-      tourneDroit();
-    }
-    else if (regardeFace == 1)
-    {
-      tourneGauche();
-    }
-    else if ((regardeFace == 2) || (regardeFace == -2))
-    {
-      tourneDroit();
-      tourneDroit();
-    }
-    // À la fin il faut remettre la variable regardeFace à la direction souhaitée
-    regardeFace = 0;
+    ligneGauche = analogRead(CaptLeft);
+    ligneMilieu = analogRead(CaptMid);
+    ligneDroite = analogRead(CaptRight);
+ 
+ 
+    MOTOR_SetSpeed(RIGHT, 0.25*vitesse);
+    MOTOR_SetSpeed(LEFT, 0.5*vitesse);
+    pulses_gauche = ENCODER_Read(LEFT);  
   }
-  else if (direction == -1)
-  {
-    if (regardeFace == 0)
-    {
-      tourneGauche();
-    }
-    else if (regardeFace == 1)
-    {
-      tourneGauche();
-      tourneGauche();
-    }
-    else if ((regardeFace == 2) || (regardeFace == -2))
-    {
-      tourneDroit();
-    }
-    regardeFace = -1;
-  }
-  else if (direction == 1)
-  {
-    if (regardeFace == 0)
-    {
-      tourneDroit();
-    }
-    else if (regardeFace == -1)
-    {
-      tourneDroit();
-      tourneDroit();
-    }
-    else if ((regardeFace == 2) || (regardeFace == -2))
-    {
-      tourneGauche();
-    }
-    regardeFace = 1;
-  }
-  // À MODIFIER SI JAMAIS ON VEUT QUE LE ROBOT FAIT FACE EN ARRIÈRE
-  //else if (direction == 2)
+  lastCheck = -1;
 }
+
+ 
+void ajustergauche(){
+ 
+  resetEncodeurs();
+  ligneMilieu = 0;
+  while (ligneMilieu < 640)
+  {
+    ligneGauche = analogRead(CaptLeft);
+    ligneMilieu = analogRead(CaptMid);
+    ligneDroite = analogRead(CaptRight);
+ 
+    MOTOR_SetSpeed(RIGHT, 0.50*vitesse);
+    MOTOR_SetSpeed(LEFT, 0.25*vitesse);
+    pulses_droit = ENCODER_Read(RIGHT);
+  }
+  lastCheck = 1;  
+}
+ 
+void suivreLigne()
+{
+ 
+  ligneGauche = analogRead(CaptLeft);
+  ligneMilieu = analogRead(CaptMid);
+  ligneDroite = analogRead(CaptRight);
+  Serial.print("Valeur du capteur de droite : ");
+  Serial.println(ligneDroite);
+  Serial.print("Valeur du capteur de gauche : ");
+  Serial.println(ligneGauche);
+  Serial.print("Valeur du capteur du milieu : ");
+  Serial.println(ligneMilieu);
+ 
+  if ((ligneMilieu > 640) && (ligneDroite < 55) && (ligneGauche < 55)){
+    avanceLent();
+  }
+ 
+  if ((ligneDroite > 650) &&  (ligneMilieu < 55) && (ligneGauche < 55)){
+    ajusterdroite();
+  }
+ 
+  if ((ligneGauche > 610) && (ligneMilieu < 55) && (ligneDroite < 55)){
+    ajustergauche();
+  }
+ 
+  if ((ligneMilieu < 55) && (ligneDroite < 55) && (ligneGauche < 55)){
+    if (lastCheck == -1)
+    {
+      ajustergauche();
+    }
+    else if (lastCheck == 1 || lastCheck == 0)
+    {
+      ajusterdroite();
+    }
+  }
+ 
+  if ((ligneMilieu > 640) && (ligneDroite > 650) && (ligneGauche > 610)){
+    arret();
+  }
+ 
+  if ((ligneMilieu > 640) && (ligneDroite > 650) && (ligneGauche < 40)){
+    ajusterdroite();
+  }
+ 
+  if ((ligneMilieu > 640) && (ligneDroite < 40) && (ligneGauche > 610)){
+    ajustergauche();
+  }
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

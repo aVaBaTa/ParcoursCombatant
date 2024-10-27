@@ -10,6 +10,7 @@ int SonAmbiant;
 float sifflet;
 float ambiant;
 int start = 0;
+bool detecteObjet = 0;
 
 
 void Sifflet()
