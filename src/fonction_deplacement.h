@@ -15,7 +15,7 @@ bool vert = false;
 bool rouge = false;
 int etat = 0; // = 0 arrêt 1 = avance 2 = recule 3 = TourneDroit 4 = TourneGauche
 int etatPast = 0;
-float vitesse = 0.3;
+float vitesse = 0.25;
 int x = 0; // x = 0 initialisation et représente la coordonnée x de la case de départ
 int y = 0; // y = 0 initialisation et représente la coordonnée y de la case de départ
 int regardeFace = 0; // Regarde à : AVANT = 0, GAUCHE = -1, DERRIÈRE = 2 ou -2, DROITE = 1
@@ -174,15 +174,15 @@ void ajusterdroite(){
  
   resetEncodeurs();
   ligneMilieu = 0;
-  while (ligneMilieu < 640)
+  while (ligneMilieu < 150)
   {
     ligneGauche = analogRead(CaptLeft);
     ligneMilieu = analogRead(CaptMid);
     ligneDroite = analogRead(CaptRight);
  
  
-    MOTOR_SetSpeed(RIGHT, 0.6 * vitesse);
-    MOTOR_SetSpeed(LEFT, 0.75 * vitesse);
+    MOTOR_SetSpeed(RIGHT, -0.5 * vitesse);
+    MOTOR_SetSpeed(LEFT, 0.5 * vitesse);
     pulses_gauche = ENCODER_Read(LEFT);  
   }
   
@@ -193,14 +193,14 @@ void ajustergauche(){
  
   resetEncodeurs();
   ligneMilieu = 0;
-  while (ligneMilieu < 640)
+  while (ligneMilieu < 150)
   {
     ligneGauche = analogRead(CaptLeft);
     ligneMilieu = analogRead(CaptMid);
     ligneDroite = analogRead(CaptRight);
  
-    MOTOR_SetSpeed(RIGHT, 0.75 * vitesse);
-    MOTOR_SetSpeed(LEFT, 0.6 * vitesse);
+    MOTOR_SetSpeed(RIGHT, 0.5 * vitesse);
+    MOTOR_SetSpeed(LEFT, -0.5 * vitesse);
     pulses_droit = ENCODER_Read(RIGHT);
   }
    
@@ -219,31 +219,31 @@ void suivreLigne()
   Serial.print("Valeur du capteur du milieu : ");
   Serial.println(ligneMilieu);
  
-  if ((ligneMilieu > 640) && (ligneDroite < 200) && (ligneGauche < 200)){
+  if ((ligneMilieu > 150) && (ligneDroite < 150) && (ligneGauche < 150)){
     avanceLent();
   }
  
-  if ((ligneDroite > 650) &&  (ligneMilieu < 200) && (ligneGauche < 200)){
+  if ((ligneDroite > 150) &&  (ligneMilieu < 150) && (ligneGauche < 150)){
     ajusterdroite();
   }
  
-  if ((ligneGauche > 610) && (ligneMilieu < 200) && (ligneDroite < 200)){
+  if ((ligneGauche > 150) && (ligneMilieu < 150) && (ligneDroite < 150)){
     ajustergauche();
   }
  
-  if ((ligneMilieu < 200) && (ligneDroite < 200) && (ligneGauche < 200)){
+  if ((ligneMilieu < 150) && (ligneDroite < 150) && (ligneGauche < 150)){
     avanceLent();
   }
  
-  if ((ligneMilieu > 640) && (ligneDroite > 650) && (ligneGauche > 610)){
+  if ((ligneMilieu > 150) && (ligneDroite > 150) && (ligneGauche > 150)){
     arret();
   }
  
-  if ((ligneMilieu > 640) && (ligneDroite > 650) && (ligneGauche < 200)){
+  if ((ligneMilieu > 150) && (ligneDroite > 150) && (ligneGauche < 150)){
     ajusterdroite();
   }
  
-  if ((ligneMilieu > 640) && (ligneDroite < 200) && (ligneGauche > 610)){
+  if ((ligneMilieu > 150) && (ligneDroite < 150) && (ligneGauche > 150)){
     ajustergauche();
   }
 }
