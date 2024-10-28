@@ -181,8 +181,8 @@ void ajusterdroite(){
     ligneDroite = analogRead(CaptRight);
  
  
-    MOTOR_SetSpeed(RIGHT, 0.75 * vitesse);
-    MOTOR_SetSpeed(LEFT, vitesse);
+    MOTOR_SetSpeed(RIGHT, 0.5 * vitesse);
+    MOTOR_SetSpeed(LEFT, 0.75 * vitesse);
     pulses_gauche = ENCODER_Read(LEFT);  
   }
   
@@ -199,8 +199,8 @@ void ajustergauche(){
     ligneMilieu = analogRead(CaptMid);
     ligneDroite = analogRead(CaptRight);
  
-    MOTOR_SetSpeed(RIGHT, vitesse);
-    MOTOR_SetSpeed(LEFT, 0.75*vitesse);
+    MOTOR_SetSpeed(RIGHT, 0.75 * vitesse);
+    MOTOR_SetSpeed(LEFT, 0.5 * vitesse);
     pulses_droit = ENCODER_Read(RIGHT);
   }
    
