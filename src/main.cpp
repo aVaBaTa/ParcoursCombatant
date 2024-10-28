@@ -205,64 +205,55 @@ else if(etat == 0)// Boucle Rouge
 {
   if(CycleBoucle == 0)//Rouge ==> Vert
   {
-  //se dirige vers le vert
-    //Avance et Tourne vers la gauche
-    if(etape == 0){
-    // FONCTIONS À AJOUTER ICI SI LE ROBOT PART DANS LA PARTIE NOIRE DU BUT
-    // Avance, Tourne a gauche vers le But Vert, Avance jusqu a la ligne noire
+    //etape 1 Avance et Tourne vers la gauche
+      // FONCTIONS À AJOUTER ICI SI LE ROBOT PART DANS LA PARTIE NOIRE DU BUT
+      // Avance, Tourne a gauche vers le But Vert, Avance jusqu a la ligne noire
       avance(1500);
       tourneGauche(1100);
       avance(2000);
-      etape = 1;
-    }
+      
+    
     if(etape == 1)
     {
-    //detecte la ligne      /*faire une boucle ou un system pour que le code se fasse en boucle a partir d ici*/
+    //detecte la ligne      /*faire un While*/
     //suiveur de ligne
      if(Detecteur_IR_Objet() == 1)
      {
       etape = 2;
      }
     }
-    // detecte Objet
-    if(etape == 2){
+    
+    // etape 3 detecte Objet
   
-    //Detecte la Distance de l objet ou va a l infini tant que on a pas detecter l objet
+      //Detecte la Distance de l objet
 
 
-    // va vers l Objet
-    AllerVersObjet("Droite" , /*Distance du Robot*/DistanceObjet);
-    etape = 3;
+      // va vers l Objet
+      AllerVersObjet("Droite" , /*Distance du Robot*/DistanceObjet);
 
-  }
-    if(etape == 3)
-  {
+    // Etape 4
 
-  //if(Detecte pas objet){avance doucement}
+      //if(Detecte pas objet){avance doucement}
 
 
-  //if(Detecte objet dans son range) // capteur de proximite avant
-    etape = 4;
-  }
-    if(etape == 4){
+      //if(Detecte objet dans son range) // capteur de proximite avant
+    // Etape 5
       //prend l objet
-      etape == 5;
-        }
-    if(etape == 5){
-    // retourne dans le rouge
-    // if detecteur de couleur capte du rouge
-      etape = 6;
-  }
-    if(etape == 6){
-    //lache objet
-    etape = 7;
-  }
-    if(etape == 7){
+
+    //Etape 6
+      // retourne dans le rouge
+      // if detecteur de couleur capte du rouge
+
+    //Etape 7
+      //lache objet
+    
+    
+    //Etape 8
     // se tourne ver le jaune
     CycleBoucle = 1;
-    etape = 0;
-    }
   }
+
+
   if(CycleBoucle == 1){}//Rouge ==> Jaune
   if(CycleBoucle == 2){}//Jaune ==> Vert
   if(CycleBoucle == 3){}//Vert ==> Bleu
