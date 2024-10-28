@@ -211,7 +211,6 @@ void loop()
         ligneMilieu = analogRead(CaptMid);
         tourneDroitInfini();
       }
-      delay(100);
       // Lorsqu'il détecte la ligne, arrête.
       arret();
       

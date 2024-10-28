@@ -185,7 +185,7 @@ void ajusterdroite(){
     MOTOR_SetSpeed(LEFT, vitesse);
     pulses_gauche = ENCODER_Read(LEFT);  
   }
-  lastCheck = -1;
+  
 }
 
  
@@ -203,7 +203,7 @@ void ajustergauche(){
     MOTOR_SetSpeed(LEFT, 0.75*vitesse);
     pulses_droit = ENCODER_Read(RIGHT);
   }
-  lastCheck = 1;  
+   
 }
  
 void suivreLigne()
@@ -232,14 +232,7 @@ void suivreLigne()
   }
  
   if ((ligneMilieu < 200) && (ligneDroite < 200) && (ligneGauche < 200)){
-    if (lastCheck == -1)
-    {
-      ajustergauche();
-    }
-    else if (lastCheck == 1 || lastCheck == 0)
-    {
-      ajusterdroite();
-    }
+    avanceLent();
   }
  
   if ((ligneMilieu > 640) && (ligneDroite > 650) && (ligneGauche > 610)){
