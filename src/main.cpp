@@ -189,7 +189,14 @@ return start;
 
 
 int CycleBoucle = -1; // changer le nom pls
-int etape = -1;
+// pour Etape 5 constante de detection des capteurs Milieu CycleBoucle 1
+int SuiveurLigneCapteurMilieu = 0;
+// pour Etape 5 constante de detection des capteurs Milieu CycleBoucle 1
+int SuiveurLigneCapteurGauche = 0;
+// pour Etape 5 constante de detection des capteurs Milieu CycleBoucle 1
+int SuiveurLigneCapteurDroit = 0;
+
+
 
 void loop()
 {
@@ -231,20 +238,52 @@ else if(etat == 0)// Boucle Rouge
       // va vers l Objet
       AllerVersObjet("Droite" , /*Distance du Robot*/DistanceObjet);
 
-    // Etape 4
-
+    // Etape 4     PAS BESOIN
+    /*while(Detecte pas d objet){
       //if(Detecte pas objet){avance doucement}
-
+      avance(1000);
 
       //if(Detecte objet dans son range) // capteur de proximite avant
-    // Etape 5
-      //prend l objet
+    }*/
+
+    // Etape 5        Prend l objet
+      ramasserObjet();
+      tourneDroit(/*90 degree*/ 2000);
+      while(SuiveurLigneCapteurMilieu == 1; && SuiveurLigneCapteurDroit == 1;) // les deux capteurs milieu et droits
+      {
+        ligneMilieu = analogRead(CaptMid);
+        ligneDroite = analogRead(CaptRight);
+
+        avanceLent();
+        if(ligneMilieu < 150)
+        {
+          SuiveurLigneCapteurMilieu = 1:
+        }
+        if(ligneDroite < 150)
+        {
+          SuiveurLigneCapteurDroit = 1;
+        }
+      }
+      arret();
+      while (ligneMilieu < 150)
+      {
+        tourneDroitInfini();
+      }
+      arret();
+    // Etape 7 Fonction Suiveur de ligne tant que detecte la ligne
+
+      arret();
 
     //Etape 6
+      while(/*Capteur de Couleur Capte Rouge*/DetecterCouleur() == 1){
+        avanceLent();
       // retourne dans le rouge
       // if detecteur de couleur capte du rouge
+      }
+      arret();
 
     //Etape 7
+    
       //lache objet
     
     
