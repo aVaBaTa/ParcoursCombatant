@@ -102,17 +102,10 @@ int DetecterCouleur()
     g = green; g /= sum;
     b = blue; b /= sum;
     r *= 256; g *= 256; b *= 256;
-    /*Serial.print("C:\t"); Serial.print(sum);
-    Serial.print("\tR:\t"); Serial.print(r);
-    Serial.print("\tG:\t"); Serial.print(g);
-    Serial.print("\tB:\t"); Serial.print(b);
-    Serial.print("\t");
-    Serial.print((int)r, HEX); Serial.print((int)g, HEX); Serial.print((int)b, HEX);
-    Serial.println(); */
+
     sommeR += r;
     sommeG += g;
     sommeB += b;
-    //Serial.print((int)r ); Serial.print(" "); Serial.print((int)g);Serial.print(" ");  Serial.println((int)b );
  
     analogWrite(redpin, gammatable[(int)r]);
     analogWrite(greenpin, gammatable[(int)g]);
@@ -171,10 +164,13 @@ void setup(){
 
 void loop()
 {
+  /*
+  * POUR LE BUMPER 
+  * À CHANGER SI ON UTILISE LE DÉTECTEUR DE SIFFLET
+  * */
   bumperArr = ROBUS_IsBumper(3);
   if (bumperArr){
     if (etat == 0){
-      //suivreLigne();
       etat = 1;
       beep(2);
     }
@@ -185,16 +181,40 @@ void loop()
       etat = 0;
     }
   }
+
+  // Si le robot reçoit le signal du bumper/sifflet il change d'état (0 -> 1)
   if (etat == 1)
   {
     arret();
+    // Le robot détecte la couleur du but initial et la stocke dans couleurBut
     couleurBut = DetecterCouleur();
     arret();
-    // Si la couleur du but initial détectée est ROUGE
-    if (couleurBut == 0)
+
+
+    // Si la couleur du but initial détectée est BLEUE
+    if (couleurBut == 3)
     {
-      //Le robot avance de _ pulses pour atteindre la prochaine ligne noire.
+      // FONCTIONS À AJOUTER ICI SI LE ROBOT PART DANS LA PARTIE NOIRE DU BUT
       avance(1500);
+      tourneGauche(1100);
+
+      //Le robot avance de _ pulses pour atteindre la prochaine ligne noire.
+      avance(2000);
+      delay(200);
+
+      // Le robot fait un petit virage à gauche pour balayer afin de détecter la ligne noire
+      tourneGauche(1500);
+
+      // Tant et autant que le capteur opto du milieu détecte rien, tourne à droite.
+      while (ligneMilieu < 640)
+      {
+        ligneMilieu = analogRead(CaptMid);
+        tourneDroitInfini();
+      }
+      delay(100);
+      // Lorsqu'il détecte la ligne, arrête.
+      arret();
+      
       while (detecteObjet == false)
       {
         suivreLigne();

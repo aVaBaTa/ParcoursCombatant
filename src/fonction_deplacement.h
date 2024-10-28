@@ -147,13 +147,27 @@ void tourneGauche(int nombre_pulses){
   pause();
 };
 
+void tourneDroitInfini()
+{
+  resetEncodeurs();
+  MOTOR_SetSpeed(RIGHT, -0.5*vitesse);
+  MOTOR_SetSpeed(LEFT, 0.5*vitesse);
+}
+
+void tourneGaucheInfini()
+{
+  resetEncodeurs();
+  MOTOR_SetSpeed(RIGHT, 0.5*vitesse);
+  MOTOR_SetSpeed(LEFT, -0.5*vitesse);  
+}
+
 
 //FONCTIONS POUR LE SUIVEUR DE LIGNE
 void avanceLent(){
   resetEncodeurs();
-    MOTOR_SetSpeed(RIGHT,vitesse);
-    MOTOR_SetSpeed(LEFT, vitesse);
-    pulses_droit = ENCODER_Read(RIGHT);
+  MOTOR_SetSpeed(RIGHT,vitesse);
+  MOTOR_SetSpeed(LEFT, vitesse);
+  pulses_droit = ENCODER_Read(RIGHT);
 };
 
 void ajusterdroite(){
@@ -167,8 +181,8 @@ void ajusterdroite(){
     ligneDroite = analogRead(CaptRight);
  
  
-    MOTOR_SetSpeed(RIGHT, 0.25*vitesse);
-    MOTOR_SetSpeed(LEFT, 0.5*vitesse);
+    MOTOR_SetSpeed(RIGHT, 0.75 * vitesse);
+    MOTOR_SetSpeed(LEFT, vitesse);
     pulses_gauche = ENCODER_Read(LEFT);  
   }
   lastCheck = -1;
@@ -185,8 +199,8 @@ void ajustergauche(){
     ligneMilieu = analogRead(CaptMid);
     ligneDroite = analogRead(CaptRight);
  
-    MOTOR_SetSpeed(RIGHT, 0.50*vitesse);
-    MOTOR_SetSpeed(LEFT, 0.25*vitesse);
+    MOTOR_SetSpeed(RIGHT, vitesse);
+    MOTOR_SetSpeed(LEFT, 0.75*vitesse);
     pulses_droit = ENCODER_Read(RIGHT);
   }
   lastCheck = 1;  
@@ -205,19 +219,19 @@ void suivreLigne()
   Serial.print("Valeur du capteur du milieu : ");
   Serial.println(ligneMilieu);
  
-  if ((ligneMilieu > 640) && (ligneDroite < 55) && (ligneGauche < 55)){
+  if ((ligneMilieu > 640) && (ligneDroite < 200) && (ligneGauche < 200)){
     avanceLent();
   }
  
-  if ((ligneDroite > 650) &&  (ligneMilieu < 55) && (ligneGauche < 55)){
+  if ((ligneDroite > 650) &&  (ligneMilieu < 200) && (ligneGauche < 200)){
     ajusterdroite();
   }
  
-  if ((ligneGauche > 610) && (ligneMilieu < 55) && (ligneDroite < 55)){
+  if ((ligneGauche > 610) && (ligneMilieu < 200) && (ligneDroite < 200)){
     ajustergauche();
   }
  
-  if ((ligneMilieu < 55) && (ligneDroite < 55) && (ligneGauche < 55)){
+  if ((ligneMilieu < 200) && (ligneDroite < 200) && (ligneGauche < 200)){
     if (lastCheck == -1)
     {
       ajustergauche();
@@ -232,11 +246,11 @@ void suivreLigne()
     arret();
   }
  
-  if ((ligneMilieu > 640) && (ligneDroite > 650) && (ligneGauche < 40)){
+  if ((ligneMilieu > 640) && (ligneDroite > 650) && (ligneGauche < 200)){
     ajusterdroite();
   }
  
-  if ((ligneMilieu > 640) && (ligneDroite < 40) && (ligneGauche > 610)){
+  if ((ligneMilieu > 640) && (ligneDroite < 200) && (ligneGauche > 610)){
     ajustergauche();
   }
 }
