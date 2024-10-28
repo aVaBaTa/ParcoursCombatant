@@ -107,9 +107,9 @@ int DetecterCouleur()
     sommeG += g;
     sommeB += b;
  
-    analogWrite(redpin, gammatable[(int)r]);
-    analogWrite(greenpin, gammatable[(int)g]);
-    analogWrite(bluepin, gammatable[(int)b]);    
+    //analogWrite(redpin, gammatable[(int)r]);
+    //analogWrite(greenpin, gammatable[(int)g]);
+    //analogWrite(bluepin, gammatable[(int)b]);    
   }
   moyenneR = sommeR / 5.0;
   moyenneG = sommeG / 5.0;
@@ -148,6 +148,12 @@ int DetecterCouleur()
 void ramasserObjet(){
   SERVO_SetAngle(LEFT,90);
   SERVO_SetAngle(RIGHT,90);
+}
+
+//a modifier
+void lacherObjet(){
+  SERVO_SetAngle(LEFT, 180);
+  SERVO_SetAngle(RIGHT, 0);
 }
  
 
@@ -206,7 +212,7 @@ if(etat == -1)
 {
   etat = StartSequence();
   CycleBoucle = 0;
-  etape = 0;
+
 }
 else if(etat == 0)// Boucle Rouge
 {
@@ -218,38 +224,29 @@ else if(etat == 0)// Boucle Rouge
       avance(1500);
       tourneGauche(1100);
       avance(2000);
-      
-    
-    if(etape == 1)
-    {
-    //detecte la ligne      /*faire un While*/
-    //suiveur de ligne
-     if(Detecteur_IR_Objet() == 1)
-     {
-      etape = 2;
-     }
-    }
-    
+    // etape 2 Suivre la ligne
+      while(Detecteur_IR_Objet() != 1)
+      {
+        suivreLigne();
+      }
+      arret();
     // etape 3 detecte Objet
-  
       //Detecte la Distance de l objet
-
-
+      Detecteur_IR_Distance();
       // va vers l Objet
       AllerVersObjet("Droite" , /*Distance du Robot*/DistanceObjet);
-
     // Etape 4     PAS BESOIN
-    /*while(Detecte pas d objet){
-      //if(Detecte pas objet){avance doucement}
-      avance(1000);
+      /*while(Detecte pas d objet){
+        //if(Detecte pas objet){avance doucement}
+        avance(1000);
 
-      //if(Detecte objet dans son range) // capteur de proximite avant
-    }*/
-
+        //if(Detecte objet dans son range) // capteur de proximite avant
+      }*/
     // Etape 5        Prend l objet
       ramasserObjet();
+    // Etape 6  Retourne a la ligne
       tourneDroit(/*90 degree*/ 2000);
-      while(SuiveurLigneCapteurMilieu == 1; && SuiveurLigneCapteurDroit == 1;) // les deux capteurs milieu et droits
+      while(SuiveurLigneCapteurMilieu == 1 && SuiveurLigneCapteurDroit == 1) // les deux capteurs milieu et droits
       {
         ligneMilieu = analogRead(CaptMid);
         ligneDroite = analogRead(CaptRight);
@@ -257,38 +254,58 @@ else if(etat == 0)// Boucle Rouge
         avanceLent();
         if(ligneMilieu < 150)
         {
-          SuiveurLigneCapteurMilieu = 1:
+          SuiveurLigneCapteurMilieu = 1;
         }
         if(ligneDroite < 150)
         {
           SuiveurLigneCapteurDroit = 1;
         }
       }
+      SuiveurLigneCapteurDroit = 0;
+      SuiveurLigneCapteurMilieu = 0;
       arret();
+    // Etape 7 Se mets Droit par rapport a la ligne 
       while (ligneMilieu < 150)
       {
         tourneDroitInfini();
       }
       arret();
-    // Etape 7 Fonction Suiveur de ligne tant que detecte la ligne
-
+    // Etape 8 Fonction Suiveur de ligne tant que detecte la ligne
+      while(DetecterCouleur() != 1)
+      {
+        suivreLigne();
+      }
       arret();
 
     //Etape 6
       while(/*Capteur de Couleur Capte Rouge*/DetecterCouleur() == 1){
         avanceLent();
-      // retourne dans le rouge
-      // if detecteur de couleur capte du rouge
       }
       arret();
-
     //Etape 7
-    
-      //lache objet
-    
-    
-    //Etape 8
-    // se tourne ver le jaune
+      lacherObjet();
+    //Etape 8   // peut etre reculer
+      tourneGauche(1100); // peut etre plus
+      while(SuiveurLigneCapteurMilieu == 1 && SuiveurLigneCapteurGauche == 1) // les deux capteurs milieu et droits
+      {
+        ligneMilieu = analogRead(CaptMid);
+        ligneGauche = analogRead(CaptRight);
+
+        avanceLent();
+        if(ligneMilieu < 150)
+          {
+            SuiveurLigneCapteurMilieu = 1;
+          }
+        if(ligneGauche < 150)
+          {
+            SuiveurLigneCapteurGauche = 1;
+          }
+      }
+      SuiveurLigneCapteurDroit = 0;
+      SuiveurLigneCapteurGauche = 0;
+      SuiveurLigneCapteurMilieu = 0;
+
+
     CycleBoucle = 1;
   }
 
@@ -296,7 +313,7 @@ else if(etat == 0)// Boucle Rouge
   if(CycleBoucle == 1){}//Rouge ==> Jaune
   if(CycleBoucle == 2){}//Jaune ==> Vert
   if(CycleBoucle == 3){}//Vert ==> Bleu
-  //fin
+
 }
 
 
@@ -307,43 +324,6 @@ else if(etat == 3){}// Boucle Bleu
   
 
 
-
-
-
-  // Depart Rouge
-  // va chercher Objet et va retourne dans le rouge
-if(DetecterCouleur() == 0)// rouge
-{
-  // Boucle 1 ** depend de la Fonction Start Sequence 
-
-
-  // va chercher Objet 
-  //retourne dans le rouge
-
-
-  // va vers le jaune
-  //detecte un objet
-  //prendre l objet
-  //va le porter dans le jaune
-
-  //va vers le vert
-  //detecte un objet
-  //prendre l objet
-  //va le porter dans le vert
-
-  // va vers le Bleu
-  //detecte un objet
-  //prendre l objet
-  //va le porter dans le Bleu
-
-  // fin
-}
-else if(DetecterCouleur() == 1)// Jaune
-{}
-else if(DetecterCouleur() == 2)// Vert
-{}
-else if(DetecterCouleur() == 3)// Bleu
-{}
 
 
 
