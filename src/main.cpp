@@ -152,6 +152,7 @@ void ramasserObjet(){
  
 
 void setup(){
+
   Serial.begin(9600);
   BoardInit();
   initialiserServoMoteur();
@@ -161,14 +162,170 @@ void setup(){
   delay(100);
   beep(3);
 }
+// Peut etre pas besoin de cette Fonction || Ajouter  la fonction Sifflet
+int StartSequence()
+{
+int start = -1;
+if(DetecterCouleur() == 0)// rouge
+{
+  start = 0;
+}
+else if(DetecterCouleur() == 1)// Jaune
+{
+  start = 1;
+}
+else if(DetecterCouleur() == 2)// Vert
+{
+  start = 2;
+}
+else if(DetecterCouleur() == 3)// Bleu
+{
+  start = 3;
+}
+return start;
+}
+
+
+
+
+int CycleBoucle = -1; // changer le nom pls
+int etape = -1;
 
 void loop()
 {
+
+// Faire la Fonction de depart
+if(etat == -1)
+{
+  etat = StartSequence();
+  CycleBoucle = 0;
+  etape = 0;
+}
+else if(etat == 0)// Boucle Rouge
+{
+  if(CycleBoucle == 0)//Rouge ==> Vert
+  {
+  //se dirige vers le vert
+    //Avance et Tourne vers la gauche
+    if(etape == 0){
+    // FONCTIONS À AJOUTER ICI SI LE ROBOT PART DANS LA PARTIE NOIRE DU BUT
+    // Avance, Tourne a gauche vers le But Vert, Avance jusqu a la ligne noire
+      avance(1500);
+      tourneGauche(1100);
+      avance(2000);
+      etape = 1;
+    }
+    if(etape == 1)
+    {
+    //detecte la ligne      /*faire une boucle ou un system pour que le code se fasse en boucle a partir d ici*/
+    //suiveur de ligne
+     if(Detecteur_IR_Objet() == 1)
+     {
+      etape = 2;
+     }
+    }
+    // detecte Objet
+    if(etape == 2){
+  
+    //Detecte la Distance de l objet ou va a l infini tant que on a pas detecter l objet
+
+
+    // va vers l Objet
+    AllerVersObjet("Droite" , /*Distance du Robot*/DistanceObjet);
+    etape = 3;
+
+  }
+    if(etape == 3)
+  {
+
+  //if(Detecte pas objet){avance doucement}
+
+
+  //if(Detecte objet dans son range) // capteur de proximite avant
+    etape = 4;
+  }
+    if(etape == 4){
+      //prend l objet
+      etape == 5;
+        }
+    if(etape == 5){
+    // retourne dans le rouge
+    // if detecteur de couleur capte du rouge
+      etape = 6;
+  }
+    if(etape == 6){
+    //lache objet
+    etape = 7;
+  }
+    if(etape == 7){
+    // se tourne ver le jaune
+    CycleBoucle = 1;
+    etape = 0;
+    }
+  }
+  if(CycleBoucle == 1){}//Rouge ==> Jaune
+  if(CycleBoucle == 2){}//Jaune ==> Vert
+  if(CycleBoucle == 3){}//Vert ==> Bleu
+  //fin
+}
+
+
+
+else if(etat == 1){}// Boucle Jaune
+else if(etat == 2){}// Boucle Vert
+else if(etat == 3){}// Boucle Bleu
+  
+
+
+
+
+
+  // Depart Rouge
+  // va chercher Objet et va retourne dans le rouge
+if(DetecterCouleur() == 0)// rouge
+{
+  // Boucle 1 ** depend de la Fonction Start Sequence 
+
+
+  // va chercher Objet 
+  //retourne dans le rouge
+
+
+  // va vers le jaune
+  //detecte un objet
+  //prendre l objet
+  //va le porter dans le jaune
+
+  //va vers le vert
+  //detecte un objet
+  //prendre l objet
+  //va le porter dans le vert
+
+  // va vers le Bleu
+  //detecte un objet
+  //prendre l objet
+  //va le porter dans le Bleu
+
+  // fin
+}
+else if(DetecterCouleur() == 1)// Jaune
+{}
+else if(DetecterCouleur() == 2)// Vert
+{}
+else if(DetecterCouleur() == 3)// Bleu
+{}
+
+
+
+
+
+
+
   /*
   * POUR LE BUMPER 
   * À CHANGER SI ON UTILISE LE DÉTECTEUR DE SIFFLET
-  * */
-  bumperArr = ROBUS_IsBumper(3);
+  * */ 
+  /*bumperArr = ROBUS_IsBumper(3);
   if (bumperArr){
     if (etat == 0){
       etat = 1;
@@ -211,6 +368,7 @@ void loop()
         ligneMilieu = analogRead(CaptMid);
         tourneDroitInfini();
       }
+
       // Lorsqu'il détecte la ligne, arrête.
       arret();
       
@@ -223,8 +381,11 @@ void loop()
     }   
   }
   arret();
+
   //Detecteur_IR_Objet();
-  delay(1000);
+  delay(1000);*/
+
+
 }
 
 

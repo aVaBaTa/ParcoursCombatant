@@ -47,6 +47,8 @@ int valeurDroiteIR;
 int seuilProximiteObjet = 200; //exemple pour environ 20 cm ** distance minimale du detecteur IR
 int DistanceObjet;
 String DirectionObjet;
+
+
 void AllerVersObjet(String Direction, int Distance){// peut rajouter confirmation
 
   if(Direction == "Droite"){
@@ -106,6 +108,7 @@ void AllerVersObjet(String Direction, int Distance){// peut rajouter confirmatio
   return 0;
  }
 float Detecteur_IR_Distance_TestMoyenne()// a modifie la sortie pour etre en cm pour calculer la distance
+
  {
   float result;
   int TestValeurDroiteIR[10];
@@ -149,6 +152,7 @@ float Detecteur_IR_Distance_TestMoyenne()// a modifie la sortie pour etre en cm 
 
   return result;
  }
+// Reviser le Code
 int Detecteur_IR_Objet(){
   int result;
 
