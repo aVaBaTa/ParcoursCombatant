@@ -117,7 +117,7 @@ float Detecteur_IR_Distance_TestMoyenne()// a modifie la sortie pour etre en cm 
 
 
 
-  if(moyenneDroiteIR >= seuilProximiteObjet and moyenneGaucheIR >= seuilProximiteObjet)
+  if(moyenneDroiteIR >= seuilProximiteObjet && moyenneGaucheIR >= seuilProximiteObjet)
   {
     Serial.print("Les deux detecteurs sont active");
     result = -1;// a modifier
