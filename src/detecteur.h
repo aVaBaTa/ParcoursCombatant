@@ -12,6 +12,17 @@ float ambiant;
 int start = 0;
 bool detecteObjet = 0;
 
+//lecture des valeurs analogiques pour le capteur IR
+int capteurIRPin=A0;
+int valeurIR;
+
+
+void detecteurInfraRouge()
+{
+  valeurIR=analogRead(capteurIRPin);
+  Serial.println(valeurIR);
+  delay(500);
+}
 
 void Sifflet()
 {
