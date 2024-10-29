@@ -202,7 +202,8 @@ int SuiveurLigneCapteurGauche = 0;
 // pour Etape 5 constante de detection des capteurs Milieu CycleBoucle 1
 int SuiveurLigneCapteurDroit = 0;
 
-
+int CouleurDepart;
+int CompteurSequence = 0;
 
 void loop()
 {
@@ -212,118 +213,110 @@ if(etat == -1)
 {
   etat = StartSequence();
   CycleBoucle = 0;
-
 }
-else if(etat == 0)// Boucle Rouge
-{
-  if(CycleBoucle == 0)//Rouge ==> Vert
+else if (etat != -1){
+while(CompteurSequence < 4){
+
+
+
+  CouleurDepart = DetecterCouleur()
+  avance(2000); // A ajuster pour atteindre la ligne du milieu
+  while(ligneMilieu < 150 && ligneDroite < 150 && ligneGauche < 150) // a modifier
   {
-    //etape 1 Avance et Tourne vers la gauche
-      // FONCTIONS À AJOUTER ICI SI LE ROBOT PART DANS LA PARTIE NOIRE DU BUT
-      // Avance, Tourne a gauche vers le But Vert, Avance jusqu a la ligne noire
-      avance(1500);
-      tourneGauche(1100);
-      avance(2000);
-    // etape 2 Suivre la ligne
-      while(Detecteur_IR_Objet() != 1)
-      {
-        suivreLigne();
-      }
-      arret();
-    // etape 3 detecte Objet
-      //Detecte la Distance de l objet
-      Detecteur_IR_Distance();
-      // va vers l Objet
-      AllerVersObjet("Droite" , /*Distance du Robot*/DistanceObjet);
-    // Etape 4     PAS BESOIN
-      /*while(Detecte pas d objet){
-        //if(Detecte pas objet){avance doucement}
-        avance(1000);
-
-        //if(Detecte objet dans son range) // capteur de proximite avant
-      }*/
-    // Etape 5        Prend l objet
-      ramasserObjet();
-    // Etape 6  Retourne a la ligne
-      tourneDroit(/*90 degree*/ 2000);
-      while(SuiveurLigneCapteurMilieu == 1 && SuiveurLigneCapteurDroit == 1) // les deux capteurs milieu et droits
-      {
-        ligneMilieu = analogRead(CaptMid);
-        ligneDroite = analogRead(CaptRight);
-
-        avanceLent();
-        if(ligneMilieu < 150)
-        {
-          SuiveurLigneCapteurMilieu = 1;
-        }
-        if(ligneDroite < 150)
-        {
-          SuiveurLigneCapteurDroit = 1;
-        }
-      }
-      SuiveurLigneCapteurDroit = 0;
-      SuiveurLigneCapteurMilieu = 0;
-      arret();
-    // Etape 7 Se mets Droit par rapport a la ligne 
-      while (ligneMilieu < 150)
-      {
-        tourneDroitInfini();
-      }
-      arret();
-    // Etape 8 Fonction Suiveur de ligne tant que detecte la ligne
-      while(DetecterCouleur() != 1)
-      {
-        suivreLigne();
-      }
-      arret();
-
-    //Etape 6
-      while(/*Capteur de Couleur Capte Rouge*/DetecterCouleur() == 1){
-        avanceLent();
-      }
-      arret();
-    //Etape 7
-      lacherObjet();
-    //Etape 8   // peut etre reculer
-      tourneGauche(1100); // peut etre plus
-      while(SuiveurLigneCapteurMilieu == 1 && SuiveurLigneCapteurGauche == 1) // les deux capteurs milieu et droits
-      {
-        ligneMilieu = analogRead(CaptMid);
-        ligneGauche = analogRead(CaptRight);
-
-        avanceLent();
-        if(ligneMilieu < 150)
-          {
-            SuiveurLigneCapteurMilieu = 1;
-          }
-        if(ligneGauche < 150)
-          {
-            SuiveurLigneCapteurGauche = 1;
-          }
-      }
-      SuiveurLigneCapteurDroit = 0;
-      SuiveurLigneCapteurGauche = 0;
-      SuiveurLigneCapteurMilieu = 0;
-
-
-    CycleBoucle = 1;
+    suivreLigne();
+  }
+  arrete();
+  if(CouleurDepart == 0) // Rouge
+  {
+    Beep(1);
+  }
+  else if(CouleurDepart == 1)// Jaune
+  {
+    tourneDroit(90); // tourne 90 degre
+  }
+  else if(CouleurDepart == 2)// Vert
+  {
+   tourneGauche(90);// tourne 90 degre
+  }
+  else if(CouleurDepart == 3)// Bleu
+  {
+    tourneDroit(180); // tourne 180 degree
   }
 
+// Boucle principale
+tourneDroit(180); // 180 degree
+if(CompteurSequence == 0)
+{
+   tourneDroit(180);
+}
+else if(CompteurSequence == 1)
+{
+  tourneDroit(90);
+}
+else if(CompteurSequence == 2)
+{
+  tourneGauche(180);
+}
+else if(CompteurSequence == 3)
+{
+  tourneGauche(90);
+}
 
-  if(CycleBoucle == 1){}//Rouge ==> Jaune
-  if(CycleBoucle == 2){}//Jaune ==> Vert
-  if(CycleBoucle == 3){}//Vert ==> Bleu
+
+
+  // || une fonction devrait remplacer sa
+  while(Detecteur_IR_Objet() == 0) // et pas fait de 90 degree
+  {
+    //tournegauche lentement pour detecter *** si CompteurSequence == 2 ou 3 c Tourne a droit
+    // detecte
+  }
+  arret();
+  AllerVersObjet(); // modifier la fonction
+  //if   (Fonction de Detection d objet proche)
+    ramasserObjet();
+  //si CompteurSequence == 2 ou 3 les Suiveur lignes de gauches Pas sur a verifier*********
+
+
+  while(SuiveurLigneCapteurDroit == 1 && SuiveurLigneCapteurMilieu == 1)// le code fait dans la branche main pour aller tout droit et trouver le chemin
+  {
+    avanceLent();
+  }
+  arret();
+  tourneDroit();
+  while(DetecterCouleur() != 0)// rouge Selon la sequence exemple si c est sequence 1 sa doit etre Jaune
+  {
+    suivreLigne();
+  }
+  arret();
+  // peut etre tourner a gauche ou a droite selon normalement c gauche dans tout les cas
+
+
+  // TRES IMPORTANT ON ARRIVE TOUJOURS DU MEME SENS DONC MEME SEQUENCE POUR LA FIN 
+  // on avance un peu on tourne a gauche vers le but
+  // on avance encore un peu
+  // on depose l objet
+  // on recule et 180 degree
+  while(DetecterCouleur() == 0)// rouge Selon la sequence 
+  {
+    avanceLent();
+  }
+  arret();
+  lacherObjet();
+  tourneDroit(180); // fait un 180
+
+  CompteurSequence += 1;
+}
 
 }
 
 
 
-else if(etat == 1){}// Boucle Jaune
-else if(etat == 2){}// Boucle Vert
-else if(etat == 3){}// Boucle Bleu
   
 
 
+
+
+}
 
 
 
