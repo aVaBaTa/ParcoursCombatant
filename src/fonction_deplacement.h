@@ -19,9 +19,9 @@ int last_move = 0;	 // est = 1 si x==0 et que le dernier movement est setorienta
 float KP1 = 0.0015;
 
 // Pour le suiveur de ligne
-int CaptLeft = A10;
+int CaptLeft = A12; // A changer si PIN inverse
 int CaptMid = A11;
-int CaptRight = A12;
+int CaptRight = A10; // A chanmger si PIN inverse
 int ligneGauche;
 int ligneMilieu;
 int ligneDroite;
@@ -179,8 +179,8 @@ void ajusterdroite()
 		ligneMilieu = analogRead(CaptMid);
 		ligneDroite = analogRead(CaptRight);
 
-		MOTOR_SetSpeed(RIGHT, -0.5 * vitesse);
-		MOTOR_SetSpeed(LEFT, 0.5 * vitesse);
+		MOTOR_SetSpeed(RIGHT, 0.75 * vitesse);
+		MOTOR_SetSpeed(LEFT, vitesse);
 		pulses_gauche = ENCODER_Read(LEFT);
 	}
 }
@@ -195,8 +195,8 @@ void ajustergauche()
 		ligneMilieu = analogRead(CaptMid);
 		ligneDroite = analogRead(CaptRight);
 
-		MOTOR_SetSpeed(RIGHT, 0.5 * vitesse);
-		MOTOR_SetSpeed(LEFT, -0.5 * vitesse);
+		MOTOR_SetSpeed(RIGHT, vitesse);
+		MOTOR_SetSpeed(LEFT, 0.75 * vitesse);
 		pulses_droit = ENCODER_Read(RIGHT);
 	}
 }

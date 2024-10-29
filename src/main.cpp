@@ -234,7 +234,7 @@ void loop()
 
 			CouleurDepart = DetecterCouleur();
 			avance(2000);														// A ajuster pour atteindre la ligne du milieu
-			while (ligneMilieu < 150 && ligneDroite < 150 && ligneGauche < 150) // a modifier
+			while (ligneMilieu > 150 && ligneDroite > 150 && ligneGauche > 150) // a modifier
 			{
 				suivreLigne();
 			}
@@ -258,42 +258,48 @@ void loop()
 
 			// Boucle principale
 			tourneDroit(180); // 180 degree
-			if (CompteurSequence == 0)
+			if (CompteurSequence == 0)// sequence Rouge
 			{
 				tourneDroit(180);
 			}
-			else if (CompteurSequence == 1)
+			else if (CompteurSequence == 1)// Sequence Jaune
 			{
 				tourneDroit(90);
 			}
-			else if (CompteurSequence == 2)
+			else if (CompteurSequence == 2)// Sequence Vert
 			{
 				tourneGauche(180);
 			}
-			else if (CompteurSequence == 3)
+			else if (CompteurSequence == 3)// Sequence Bleu
 			{
 				tourneGauche(90);
 			}
 
 			// || une fonction devrait remplacer sa
-			while (Detecteur_IR_Objet() == 0) // et pas fait de 90 degree
+			while (IsObjectDetected() == 0) // et pas fait de 90 degree
 			{
 				// tournegauche lentement pour detecter *** si CompteurSequence == 2 ou 3 c Tourne a droit
 				//  detecte
+
+
+
 			}
 			arret();
-			AllerVersObjet("devant", DistanceObjet); // modifier la fonction
-													 // if   (Fonction de Detection d objet proche)
-			ramasserObjet();
-			// si CompteurSequence == 2 ou 3 les Suiveur lignes de gauches Pas sur a verifier*********
+			AllerVersObjet(CapteurIR_Distance_Obj());
 
+													 // if   (Fonction de Detection d objet proche)
+			ramasserObjet(); // Peut etre ajouter un delay dans la fonction parce que le robot va fermer ses pinces vrm vite
+
+
+
+			// si CompteurSequence == 2 ou 3 les Suiveur lignes de gauches Pas sur a verifier*********
 			while (SuiveurLigneCapteurDroit == 1 && SuiveurLigneCapteurMilieu == 1) // le code fait dans la branche main pour aller tout droit et trouver le chemin
 			{
 				avanceLent();
 			}
 			arret();
 			tourneDroit(45);			   // Verifier avec Vincent
-			while (DetecterCouleur() != 0) // rouge Selon la sequence exemple si c est sequence 1 sa doit etre Jaune
+			while (DetecterCouleur() == 4) // rouge Selon la sequence exemple si c est sequence 1 sa doit etre Jaune
 			{
 				suivreLigne();
 			}
