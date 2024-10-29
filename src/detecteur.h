@@ -44,7 +44,7 @@ int gaucheIRPin=A0;
 int droiteIRPin=A1;
 int valeurGaucheIR;
 int valeurDroiteIR;
-int seuilProximiteObjet = 200; //exemple pour environ 20 cm ** distance minimale du detecteur IR
+int seuilProximiteObjet = 20; //exemple pour environ 20 cm ** distance minimale du detecteur IR
 int DistanceObjet;
 String DirectionObjet;
 
@@ -76,27 +76,15 @@ void AllerVersObjet(String Direction, int Distance){
 }
  int Detecteur_IR_Distance()// a modifie la sortie pour etre en cm pour calculer la distance
  {
-  int result;
   valeurDroiteIR = analogRead(droiteIRPin);
-  valeurGaucheIR = analogRead(gaucheIRPin);
 
-  if(valeurDroiteIR >= seuilProximiteObjet and valeurGaucheIR >= seuilProximiteObjet)
+  if(valeurDroiteIR >= seuilProximiteObjet)
   {
-    Serial.print("Les deux detecteurs sont active");
-    result = -1;// a modifier
+    return valeurDroiteIR;
   }
-  else if(valeurGaucheIR >= seuilProximiteObjet)
+  else if(seuilProximiteObjet > valeurDroiteIR)
   {
-    result = valeurGaucheIR;
-  }
-  else if(valeurDroiteIR >= seuilProximiteObjet)
-  {
-    result = valeurDroiteIR;
-  }
-  else if(seuilProximiteObjet > valeurDroiteIR and seuilProximiteObjet > valeurGaucheIR)
-  {
-    Serial.print("Aucun detecteur ne depasse le seuil");
-    result = -1;
+    return 0;
   }
 
   return result;
@@ -158,8 +146,6 @@ float Detecteur_IR_Distance_TestMoyenne()// a modifie la sortie pour etre en cm 
  }
 // Reviser le Code
 int Detecteur_IR_Objet(){
-  int result;
-
   if(Detecteur_IR_Distance() != -1){
     DistanceObjet = Detecteur_IR_Distance();
     if(valeurDroiteIR >= valeurGaucheIR){

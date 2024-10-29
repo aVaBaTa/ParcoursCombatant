@@ -16,6 +16,8 @@ byte gammatable[256];
 Adafruit_TCS34725 tcs = Adafruit_TCS34725(TCS34725_INTEGRATIONTIME_50MS, TCS34725_GAIN_4X);
 
 int couleurBut = 0;
+int COEFF_IR = 0;
+int valeur_capteur_IR = 0;
 
 /* Gestion des cerveaux moteurs
  ajuster la tension VServo qui les alimentes à 7.2V max)*/
@@ -214,27 +216,40 @@ if(etat == -1)
   CycleBoucle = 0;
 
 }
-else if(etat == 0)// Boucle Rouge
+else if(etat == 0)// Séquence Rouge
 {
-  if(CycleBoucle == 0)//Rouge ==> Vert
-  {
-    //etape 1 Avance et Tourne vers la gauche
-      // FONCTIONS À AJOUTER ICI SI LE ROBOT PART DANS LA PARTIE NOIRE DU BUT
-      // Avance, Tourne a gauche vers le But Vert, Avance jusqu a la ligne noire
-      avance(1500);
-      tourneGauche(1100);
-      avance(2000);
-    // etape 2 Suivre la ligne
-      while(Detecteur_IR_Objet() != 1)
+    // FONCTIONS À AJOUTER ICI SI LE ROBOT PART DANS LA PARTIE NOIRE DU BUT
+
+
+
+    // etape 1 Avance jusqu a la ligne noire
+      avance(1500); // À MODIFIER AU BESOIN
+    // etape 2 Suivre la ligne diagonale jusqu'au cercle au centre de l'octogone
+      while(ligneMilieu < 150 && ligneDroite < 150 && ligneGauche < 150)
       {
+        ligneGauche = analogRead(CaptLeft);
+        ligneMilieu = analogRead(CaptMid);
+        ligneDroite = analogRead(CaptRight);
         suivreLigne();
       }
       arret();
-    // etape 3 detecte Objet
-      //Detecte la Distance de l objet
-      Detecteur_IR_Distance();
-      // va vers l Objet
-      AllerVersObjet("Droite" , /*Distance du Robot*/DistanceObjet);
+      delay(200);
+    // etape 3 avance un peu pour se recalibrer au centre et tourne 180 degrés
+      avance(1000); // À MODIFIER AU BESOIN
+      tourneGauche(2000); // À MODIFIER AU BESOIN **REPRÉSENTE L'ANGLE DE 180 DEGRÉS**
+    // etape 4 détecte l'objet en balayant vers la gauche le triangle 
+      while (valeur_capteur_IR < seuilProximiteObjet) // -1 représente que le détecteur ne détecte rien
+      {
+        valeur_capteur_IR = Detecteur_IR_Distance();
+        tourneGaucheInfini();
+      }
+      arret();
+      delay(200);
+    // etape 5 fonce vers l'objet jusqu'a temps que le capteur infrarouge soit à telle valeur (très proche de l'objet)
+    //         OU on utilise un coefficient pour déterminer la distance à parcourir en pulses de la valeur lue du capteur
+      avance(COEFF_IR * valeur_capteur_IR);
+    // etape 6 
+      
     // Etape 4     PAS BESOIN
       /*while(Detecte pas d objet){
         //if(Detecte pas objet){avance doucement}
@@ -246,21 +261,6 @@ else if(etat == 0)// Boucle Rouge
       ramasserObjet();
     // Etape 6  Retourne a la ligne
       tourneDroit(/*90 degree*/ 2000);
-      while(SuiveurLigneCapteurMilieu == 1 && SuiveurLigneCapteurDroit == 1) // les deux capteurs milieu et droits
-      {
-        ligneMilieu = analogRead(CaptMid);
-        ligneDroite = analogRead(CaptRight);
-
-        avanceLent();
-        if(ligneMilieu < 150)
-        {
-          SuiveurLigneCapteurMilieu = 1;
-        }
-        if(ligneDroite < 150)
-        {
-          SuiveurLigneCapteurDroit = 1;
-        }
-      }
       SuiveurLigneCapteurDroit = 0;
       SuiveurLigneCapteurMilieu = 0;
       arret();
