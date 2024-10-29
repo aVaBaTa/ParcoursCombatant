@@ -49,20 +49,24 @@ int DistanceObjet;
 String DirectionObjet;
 
 
-void AllerVersObjet(String Direction, int Distance){// peut rajouter confirmation
+void AllerVersObjet(String Direction, int Distance){
 
   if(Direction == "Droite"){
     /*Tourne a 90
     Avance de la Distance*/
-    Serial.print("Tourne a Droite\n");
-    Serial.print("avance de ");
-    Serial.print(Distance);
+    tourneDroit(90); // alerte
+    //Serial.print("Tourne a Droite\n");
+    avance(Distance);
+    //Serial.print("avance de ");
+    //Serial.print(Distance);
   }
   else if(Direction == "Gauche"){
 
-    Serial.print("Tourne a Gauche");
-    Serial.print("avance de ");
-    Serial.print(Direction);
+    tourneGauche(90); // alerte
+    //Serial.print("Tourne a Gauche");
+    avance(Direction);
+    //Serial.print("avance de ");
+    //Serial.print(Direction);
   }
   else if(Direction != "Droite" || Direction != "Gauche")
   {

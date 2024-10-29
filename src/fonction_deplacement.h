@@ -153,7 +153,6 @@ void tourneDroitInfini()
   MOTOR_SetSpeed(RIGHT, -0.5*vitesse);
   MOTOR_SetSpeed(LEFT, 0.5*vitesse);
 }
-
 void tourneGaucheInfini()
 {
   resetEncodeurs();
@@ -187,8 +186,6 @@ void ajusterdroite(){
   }
   
 }
-
- 
 void ajustergauche(){
  
   resetEncodeurs();
