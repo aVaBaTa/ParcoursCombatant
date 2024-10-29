@@ -64,7 +64,7 @@ void AllerVersObjet(String Direction, int Distance){
 
     tourneGauche(90); // alerte
     //Serial.print("Tourne a Gauche");
-    avance(Direction);
+    avance(Distance);
     //Serial.print("avance de ");
     //Serial.print(Direction);
   }
