@@ -9,9 +9,9 @@ int vertpin = 48;
 int rougepin = 49;
 bool vert = false;
 bool rouge = false;
-int etat = 0; // = 0 arrêt 1 = avance 2 = recule 3 = TourneDroit 4 = TourneGauche
+int etat = -1; // = 0 arrêt 1 = avance 2 = recule 3 = TourneDroit 4 = TourneGauche
 int etatPast = 0;
-float vitesse = 0.25;
+float vitesse = 0.35;
 int x = 0;			 // x = 0 initialisation et représente la coordonnée x de la case de départ
 int y = 0;			 // y = 0 initialisation et représente la coordonnée y de la case de départ
 int regardeFace = 0; // Regarde à : AVANT = 0, GAUCHE = -1, DERRIÈRE = 2 ou -2, DROITE = 1
@@ -19,13 +19,15 @@ int last_move = 0;	 // est = 1 si x==0 et que le dernier movement est setorienta
 float KP1 = 0.0015;
 
 // Pour le suiveur de ligne
-int CaptLeft = A12; // A changer si PIN inverse
+int CaptLeft = A10; // A changer si PIN inverse
 int CaptMid = A11;
-int CaptRight = A10; // A chanmger si PIN inverse
-int ligneGauche;
-int ligneMilieu;
-int ligneDroite;
+int CaptRight = A12; // A chanmger si PIN inverse
+int ligneGauche = 0;
+int ligneMilieu = 0;
+int ligneDroite = 0;
 int lastCheck = 0;
+int seuilSuiveurLigne = 175;
+int verification = 0;
 
 void AjusterVitesse(uint32_t difference, uint32_t droit, uint32_t gauche)
 {
@@ -118,10 +120,15 @@ void avance(int nombre_pulses)
 	}
 	pause();
 };
-void recule()
+void recule(int nmbr_pulses)
 {
-	MOTOR_SetSpeed(RIGHT, -0.5 * vitesse);
-	MOTOR_SetSpeed(LEFT, -vitesse);
+	while (pulses_gauche < nmbr_pulses) // 1800 pulses = 950ms représente le nombre de pulses avant que la fonction tourneDroit arrête
+	{
+		MOTOR_SetSpeed(RIGHT, -1 * vitesse);
+		MOTOR_SetSpeed(LEFT, -1 * vitesse);
+		pulses_gauche = - (ENCODER_Read(LEFT));
+	}
+	pause();
 };
 void tourneDroit(int nombre_pulses)
 {
@@ -173,7 +180,7 @@ void ajusterdroite()
 
 	resetEncodeurs();
 	ligneMilieu = 0;
-	while (ligneMilieu < 150)
+	while (ligneMilieu < seuilSuiveurLigne)
 	{
 		ligneGauche = analogRead(CaptLeft);
 		ligneMilieu = analogRead(CaptMid);
@@ -189,7 +196,7 @@ void ajustergauche()
 
 	resetEncodeurs();
 	ligneMilieu = 0;
-	while (ligneMilieu < 150)
+	while (ligneMilieu < seuilSuiveurLigne)
 	{
 		ligneGauche = analogRead(CaptLeft);
 		ligneMilieu = analogRead(CaptMid);
@@ -214,37 +221,38 @@ void suivreLigne()
 	Serial.print("Valeur du capteur du milieu : ");
 	Serial.println(ligneMilieu);
 
-	if ((ligneMilieu > 150) && (ligneDroite < 150) && (ligneGauche < 150))
+	if ((ligneMilieu > seuilSuiveurLigne) && (ligneDroite <seuilSuiveurLigne) && (ligneGauche < seuilSuiveurLigne))
 	{
 		avanceLent();
 	}
 
-	if ((ligneDroite > 150) && (ligneMilieu < 150) && (ligneGauche < 150))
+	if ((ligneDroite > seuilSuiveurLigne) && (ligneMilieu < seuilSuiveurLigne) && (ligneGauche < seuilSuiveurLigne))
 	{
 		ajusterdroite();
 	}
 
-	if ((ligneGauche > 150) && (ligneMilieu < 150) && (ligneDroite < 150))
+	if ((ligneGauche > seuilSuiveurLigne) && (ligneMilieu < seuilSuiveurLigne) && (ligneDroite < seuilSuiveurLigne))
 	{
 		ajustergauche();
 	}
 
-	if ((ligneMilieu < 150) && (ligneDroite < 150) && (ligneGauche < 150))
+	if ((ligneMilieu < seuilSuiveurLigne) && (ligneDroite < seuilSuiveurLigne) && (ligneGauche < seuilSuiveurLigne))
 	{
 		avanceLent();
 	}
 
-	if ((ligneMilieu > 150) && (ligneDroite > 150) && (ligneGauche > 150))
+	if ((ligneMilieu > seuilSuiveurLigne) && (ligneDroite > seuilSuiveurLigne) && (ligneGauche > seuilSuiveurLigne))
 	{
+		verification = 1;
 		arret();
 	}
 
-	if ((ligneMilieu > 150) && (ligneDroite > 150) && (ligneGauche < 150))
+	if ((ligneMilieu > seuilSuiveurLigne) && (ligneDroite > seuilSuiveurLigne) && (ligneGauche < seuilSuiveurLigne))
 	{
 		ajusterdroite();
 	}
 
-	if ((ligneMilieu > 150) && (ligneDroite < 150) && (ligneGauche > 150))
+	if ((ligneMilieu > seuilSuiveurLigne) && (ligneDroite < seuilSuiveurLigne) && (ligneGauche > seuilSuiveurLigne))
 	{
 		ajustergauche();
 	}

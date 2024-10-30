@@ -88,9 +88,22 @@ void AllerVersObjet(int DistanceObjet)
 // On pourrait Faire une Moyenne de Plusieurs Lectures
  int CapteurIR_Distance_Obj()
  {
+  //int distanceCM = 0;
   ValeurMainCapteurIR = analogRead(MainCapteurIRPin);
-
-  // Transformer en pulse ici ou dans la fonction AllersVersObjets
+  
+  /*if (ValeurMainCapteurIR >= 400)
+  {
+    distanceCM = 10;
+  }
+  else if (ValeurMainCapteurIR < 400 && ValeurMainCapteurIR >= 250)
+  {
+    distanceCM = 20;
+  }
+  else if (ValeurMainCapteurIR < 250 && ValeurMainCapteurIR >= 170)
+  {
+    distanceCM = 30;
+  }
+    */
   return ValeurMainCapteurIR;
  }
 

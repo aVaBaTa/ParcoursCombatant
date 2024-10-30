@@ -161,8 +161,19 @@ int DetecterCouleur()
 
 void ramasserObjet()
 {
-	SERVO_SetAngle(LEFT, 90);
-	SERVO_SetAngle(RIGHT, 90);
+	int angle = 1;
+	int anglegauche = 180; 
+
+	while (angle<=65)
+	{
+		anglegauche -= 1;
+		SERVO_SetAngle(LEFT, anglegauche);
+		SERVO_SetAngle(RIGHT, angle);
+		angle += 1; 
+		delay(50);
+	}
+	
+
 }
 
 // a modifier
@@ -220,7 +231,7 @@ int CompteurSequence = 0;
 
 void loop()
 {
-
+	
 	// Faire la Fonction de depart
 	if (etat == -1)
 	{
@@ -233,72 +244,105 @@ void loop()
 		{
 
 			CouleurDepart = DetecterCouleur();
-			avance(2000);														// A ajuster pour atteindre la ligne du milieu
-			while (ligneMilieu > 150 && ligneDroite > 150 && ligneGauche > 150) // a modifier
+			//avance(2000); // A determiner												// A ajuster pour atteindre la ligne du milieu
+			while (verification == 0) // a modifier
 			{
+				Serial.println("Alright");
 				suivreLigne();
 			}
-			arret();
+			verification = 0;
+			avance(2000);// Le robot avance un peu pour se recalibrer
+
 			if (CouleurDepart == 0) // Rouge
 			{
 				beep(1);
 			}
 			else if (CouleurDepart == 1) // Jaune
 			{
-				tourneDroit(90); // tourne 90 degre
+				tourneDroit(2058); // tourne 90 degre
 			}
 			else if (CouleurDepart == 2) // Vert
 			{
-				tourneGauche(90); // tourne 90 degre
+				tourneGauche(2041); // tourne 90 degre
 			}
 			else if (CouleurDepart == 3) // Bleu
 			{
-				tourneDroit(180); // tourne 180 degree
+				tourneDroit(4117); // tourne 180 degree
 			}
 
 			// Boucle principale
 			tourneDroit(180); // 180 degree
 			if (CompteurSequence == 0)// sequence Rouge
 			{
-				tourneDroit(180);
+				tourneDroit(4117);
 			}
 			else if (CompteurSequence == 1)// Sequence Jaune
 			{
-				tourneDroit(90);
+				tourneDroit(2058);
 			}
 			else if (CompteurSequence == 2)// Sequence Vert
 			{
-				tourneGauche(180);
+				tourneGauche(4083);
 			}
 			else if (CompteurSequence == 3)// Sequence Bleu
 			{
-				tourneGauche(90);
+				tourneGauche(2041);
 			}
 
 			// || une fonction devrait remplacer sa
 			while (IsObjectDetected() == 0) // et pas fait de 90 degree
 			{
-				// tournegauche lentement pour detecter *** si CompteurSequence == 2 ou 3 c Tourne a droit
-				//  detecte
+				if (CompteurSequence == 0 || CompteurSequence == 1)
+				{
+					tourneGaucheInfini(); // Peut-être ajouter coefficient de vitesse
+				}
+				else if (CompteurSequence == 2 || CompteurSequence == 3)
+				{
+					tourneDroitInfini(); // Peut-être ajouter coefficient de vitesse
+				}
 
-
+				Serial.println("Test");
 
 			}
 			arret();
-			AllerVersObjet(CapteurIR_Distance_Obj());
+			tourneGauche(100);
+			//AllerVersObjet(CapteurIR_Distance_Obj());
+
 
 													 // if   (Fonction de Detection d objet proche)
-			ramasserObjet(); // Peut etre ajouter un delay dans la fonction parce que le robot va fermer ses pinces vrm vite
+			//ramasserObjet(); // Peut etre ajouter un delay dans la fonction parce que le robot va fermer ses pinces vrm vite
 
 
 
 			// si CompteurSequence == 2 ou 3 les Suiveur lignes de gauches Pas sur a verifier*********
-			while (SuiveurLigneCapteurDroit == 1 && SuiveurLigneCapteurMilieu == 1) // le code fait dans la branche main pour aller tout droit et trouver le chemin
+			while(SuiveurLigneCapteurMilieu != 1 && SuiveurLigneCapteurGauche != 1) // les deux capteurs milieu et droits
+      		{
+        	ligneMilieu = analogRead(CaptMid);
+        	ligneGauche = analogRead(CaptLeft);
+ 
+        	avanceLent();
+        	if(ligneMilieu > seuilSuiveurLigne)
+          	{
+            	SuiveurLigneCapteurMilieu = 1;
+          	}
+        	if(ligneGauche > seuilSuiveurLigne)
 			{
-				avanceLent();
+				SuiveurLigneCapteurGauche = 1;
 			}
+      		}
+			SuiveurLigneCapteurDroit = 0;
+			SuiveurLigneCapteurGauche = 0;
+			SuiveurLigneCapteurMilieu = 0;
+
+			ramasserObjet();
 			arret();
-			tourneDroit(45);			   // Verifier avec Vincent
+			avance(1000);
+			ligneMilieu = 0;
+			while (ligneMilieu < seuilSuiveurLigne)
+			{
+				ligneMilieu = analogRead(CaptMid);
+				tourneDroitInfini();
+			}
 			while (DetecterCouleur() == 4) // rouge Selon la sequence exemple si c est sequence 1 sa doit etre Jaune
 			{
 				suivreLigne();
@@ -311,15 +355,17 @@ void loop()
 			// on avance encore un peu
 			// on depose l objet
 			// on recule et 180 degree
-			while (DetecterCouleur() == 0) // rouge Selon la sequence
-			{
-				avanceLent();
-			}
+			avance(2000);
 			arret();
+			tourneGauche(1020);
+			avance(1000);
 			lacherObjet();
-			tourneDroit(180); // fait un 180
+			recule(1000);
+			tourneDroit(4117); // fait un 180
 
 			CompteurSequence += 1;
 		}
 	}
+
+	
 }
