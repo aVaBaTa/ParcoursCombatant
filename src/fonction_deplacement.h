@@ -122,6 +122,7 @@ void avance(int nombre_pulses)
 };
 void recule(int nmbr_pulses)
 {
+	resetEncodeurs();
 	while (pulses_gauche < nmbr_pulses) // 1800 pulses = 950ms représente le nombre de pulses avant que la fonction tourneDroit arrête
 	{
 		MOTOR_SetSpeed(RIGHT, -1 * vitesse);
@@ -153,17 +154,17 @@ void tourneGauche(int nombre_pulses)
 	pause();
 };
 
-void tourneDroitInfini()
+void tourneDroitInfini(float coefficient)
 {
 	resetEncodeurs();
-	MOTOR_SetSpeed(RIGHT, -0.5 * vitesse);
-	MOTOR_SetSpeed(LEFT, 0.5 * vitesse);
+	MOTOR_SetSpeed(RIGHT, coefficient * -0.5 * vitesse);
+	MOTOR_SetSpeed(LEFT, coefficient * 0.5 * vitesse);
 }
-void tourneGaucheInfini()
+void tourneGaucheInfini(float coefficient)
 {
 	resetEncodeurs();
-	MOTOR_SetSpeed(RIGHT, 0.5 * vitesse);
-	MOTOR_SetSpeed(LEFT, -0.5 * vitesse);
+	MOTOR_SetSpeed(RIGHT, coefficient * 0.5 * vitesse);
+	MOTOR_SetSpeed(LEFT, coefficient * -0.5 * vitesse);
 }
 
 // FONCTIONS POUR LE SUIVEUR DE LIGNE
@@ -173,6 +174,16 @@ void avanceLent()
 	MOTOR_SetSpeed(RIGHT, 0.75 * vitesse);
 	MOTOR_SetSpeed(LEFT, 0.75 * vitesse);
 	pulses_droit = ENCODER_Read(RIGHT);
+};
+void avanceLentLent(int nombre_pulses)
+{
+	resetEncodeurs();
+	while (pulses_droit < nombre_pulses) // 1800 pulses = 900ms représente le nombre de pulses avant que la fonction tourneGauche arrête
+	{
+		MOTOR_SetSpeed(RIGHT, 0.4 * vitesse);
+		MOTOR_SetSpeed(LEFT, 0.4 * vitesse);
+		pulses_droit = ENCODER_Read(RIGHT);
+	}
 };
 
 void ajusterdroite()
@@ -244,7 +255,7 @@ void suivreLigne()
 	if ((ligneMilieu > seuilSuiveurLigne) && (ligneDroite > seuilSuiveurLigne) && (ligneGauche > seuilSuiveurLigne))
 	{
 		verification = 1;
-		arret();
+		avanceLent();
 	}
 
 	if ((ligneMilieu > seuilSuiveurLigne) && (ligneDroite > seuilSuiveurLigne) && (ligneGauche < seuilSuiveurLigne))

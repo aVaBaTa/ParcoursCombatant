@@ -16,6 +16,7 @@ byte gammatable[256];
 Adafruit_TCS34725 tcs = Adafruit_TCS34725(TCS34725_INTEGRATIONTIME_50MS, TCS34725_GAIN_4X);
 
 int couleurBut = 0;
+bool verification2 = true;
 
 /* Gestion des cerveaux moteurs
  ajuster la tension VServo qui les alimentes à 7.2V max)*/
@@ -86,7 +87,7 @@ int DetecterCouleur()
 	float sommeB = 0;
 	float moyenneR, moyenneG, moyenneB;
 	int couleurDetectee = 0;
-	for (int i = 0; i < 5; i++)
+	for (int i = 0; i < 3; i++)
 	{
 		MOTOR_SetSpeed(RIGHT, 0);
 		MOTOR_SetSpeed(LEFT, 0);
@@ -94,7 +95,7 @@ int DetecterCouleur()
 
 		tcs.setInterrupt(false); // turn on LED
 
-		delay(60); // takes 50ms to read
+		//delay(60); // takes 50ms to read
 
 		tcs.getRawData(&red, &green, &blue, &clear);
 
@@ -126,9 +127,9 @@ int DetecterCouleur()
 		// analogWrite(greenpin, gammatable[(int)g]);
 		// analogWrite(bluepin, gammatable[(int)b]);
 	}
-	moyenneR = sommeR / 5.0;
-	moyenneG = sommeG / 5.0;
-	moyenneB = sommeB / 5.0;
+	moyenneR = sommeR / 3.0;
+	moyenneG = sommeG / 3.0;
+	moyenneB = sommeB / 3.0;
 	Serial.print("Valeur de R : ");
 	Serial.println(moyenneR);
 	Serial.print("Valeur de G : ");
@@ -164,13 +165,13 @@ void ramasserObjet()
 	int angle = 1;
 	int anglegauche = 180; 
 
-	while (angle<=65)
+	while (angle<=110)
 	{
 		anglegauche -= 1;
 		SERVO_SetAngle(LEFT, anglegauche);
 		SERVO_SetAngle(RIGHT, angle);
 		angle += 1; 
-		delay(50);
+		delay(10);
 	}
 	
 
@@ -232,6 +233,8 @@ int CompteurSequence = 0;
 void loop()
 {
 	
+	
+	
 	// Faire la Fonction de depart
 	if (etat == -1)
 	{
@@ -242,7 +245,6 @@ void loop()
 	{
 		while (CompteurSequence < 4)
 		{
-
 			CouleurDepart = DetecterCouleur();
 			//avance(2000); // A determiner												// A ajuster pour atteindre la ligne du milieu
 			while (verification == 0) // a modifier
@@ -250,8 +252,9 @@ void loop()
 				Serial.println("Alright");
 				suivreLigne();
 			}
+			arret();
 			verification = 0;
-			avance(2000);// Le robot avance un peu pour se recalibrer
+			avance(1500);// Le robot avance un peu pour se recalibrer
 
 			if (CouleurDepart == 0) // Rouge
 			{
@@ -288,66 +291,83 @@ void loop()
 			{
 				tourneGauche(2041);
 			}
-
+			
 			// || une fonction devrait remplacer sa
 			while (IsObjectDetected() == 0) // et pas fait de 90 degree
 			{
-				if (CompteurSequence == 0 || CompteurSequence == 1)
+				if (CompteurSequence == 0)
 				{
-					tourneGaucheInfini(); // Peut-être ajouter coefficient de vitesse
+					tourneGaucheInfini(0.5); // Peut-être ajouter coefficient de vitesse
 				}
-				else if (CompteurSequence == 2 || CompteurSequence == 3)
+				else if (CompteurSequence == 1)
 				{
-					tourneDroitInfini(); // Peut-être ajouter coefficient de vitesse
+					tourneGaucheInfini(0.5);
 				}
-
-				Serial.println("Test");
+				else if (CompteurSequence == 2)
+				{
+					tourneDroitInfini(0.5); // Peut-être ajouter coefficient de vitesse
+				}
+				else if (CompteurSequence == 3)
+				{
+					tourneDroitInfini(0.5);
+				}
 
 			}
 			arret();
-			tourneGauche(100);
+			beep(3);
+			tourneGauche(340);
+			avanceLentLent(2000);
+
+
 			//AllerVersObjet(CapteurIR_Distance_Obj());
 
 
 													 // if   (Fonction de Detection d objet proche)
 			//ramasserObjet(); // Peut etre ajouter un delay dans la fonction parce que le robot va fermer ses pinces vrm vite
 
-
-
+			
+			ligneMilieu = 0;
 			// si CompteurSequence == 2 ou 3 les Suiveur lignes de gauches Pas sur a verifier*********
-			while(SuiveurLigneCapteurMilieu != 1 && SuiveurLigneCapteurGauche != 1) // les deux capteurs milieu et droits
+			while(ligneMilieu < seuilSuiveurLigne) // les deux capteurs milieu et droits
       		{
         	ligneMilieu = analogRead(CaptMid);
-        	ligneGauche = analogRead(CaptLeft);
- 
         	avanceLent();
-        	if(ligneMilieu > seuilSuiveurLigne)
-          	{
-            	SuiveurLigneCapteurMilieu = 1;
-          	}
-        	if(ligneGauche > seuilSuiveurLigne)
-			{
-				SuiveurLigneCapteurGauche = 1;
 			}
-      		}
 			SuiveurLigneCapteurDroit = 0;
 			SuiveurLigneCapteurGauche = 0;
 			SuiveurLigneCapteurMilieu = 0;
-
-			ramasserObjet();
 			arret();
-			avance(1000);
+			delay(100);
+			ramasserObjet();
+			avance(200);
 			ligneMilieu = 0;
-			while (ligneMilieu < seuilSuiveurLigne)
+			ligneDroite = 0;
+			
+			while (ligneDroite < seuilSuiveurLigne)
 			{
-				ligneMilieu = analogRead(CaptMid);
-				tourneDroitInfini();
+				//ligneMilieu = analogRead(CaptMid);
+				ligneDroite = analogRead(CaptRight);
+				tourneDroitInfini(1);
 			}
-			while (DetecterCouleur() == 4) // rouge Selon la sequence exemple si c est sequence 1 sa doit etre Jaune
+
+//			while (ligneMilieu < seuilSuiveurLigne)
+//			{
+//				ligneMilieu = analogRead(CaptMid);
+//				tourneDroitInfini(1);
+//			}
+//
+			int i = 0;
+			ligneMilieu = 0;
+			ligneDroite = 0;
+			ligneGauche = 0;
+			while (verification == 0)
 			{
 				suivreLigne();
 			}
+			verification = 0;
+
 			arret();
+			delay(200);
 			// peut etre tourner a gauche ou a droite selon normalement c gauche dans tout les cas
 
 			// TRES IMPORTANT ON ARRIVE TOUJOURS DU MEME SENS DONC MEME SEQUENCE POUR LA FIN
@@ -355,17 +375,17 @@ void loop()
 			// on avance encore un peu
 			// on depose l objet
 			// on recule et 180 degree
-			avance(2000);
-			arret();
-			tourneGauche(1020);
-			avance(1000);
+			//avance(2000);
+			//arret();
+			//tourneGauche(1020);
+			//avance(1000);
+
 			lacherObjet();
-			recule(1000);
+			recule(4000);
 			tourneDroit(4117); // fait un 180
 
 			CompteurSequence += 1;
 		}
 	}
-
-	
+		
 }

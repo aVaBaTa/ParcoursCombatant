@@ -15,6 +15,7 @@ bool detecteObjet = 0;
 //lecture des valeurs analogiques pour le capteur IR
 int capteurIRPin=A0;
 int valeurIR;
+int moyenneIR;
 
 
 void detecteurInfraRouge()
@@ -51,7 +52,7 @@ int MainCapteurIRPin=A1;
 int ValeurMainCapteurIR;
 
 //exemple pour environ 20 cm ** distance minimale du detecteur IR
-int seuilProximiteObjet = 200; 
+int seuilProximiteObjet = 140; 
 
 int ValeurGlobalDistanceObjet;
 
@@ -71,8 +72,17 @@ void AllerVersObjet(int DistanceObjet)
  int IsObjectDetected()// a modifie la sortie pour etre en cm pour calculer la distance
  {
   int result = 0;
-  ValeurMainCapteurIR = analogRead(MainCapteurIRPin);
-  if(ValeurMainCapteurIR >= seuilProximiteObjet)
+  moyenneIR = 0;
+  for (int i = 0; i < 10; i++)
+  {
+    ValeurMainCapteurIR = analogRead(MainCapteurIRPin);
+    moyenneIR += ValeurMainCapteurIR;
+    ValeurMainCapteurIR = 0;
+
+  }
+  moyenneIR = moyenneIR / 10.0;
+  //Serial.println(moyenneIR);
+  if(moyenneIR >= seuilProximiteObjet)
   {
     result = 1;// a modifier
   }
