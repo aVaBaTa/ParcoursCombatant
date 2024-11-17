@@ -18,6 +18,10 @@ int regardeFace = 0; // Regarde à : AVANT = 0, GAUCHE = -1, DERRIÈRE = 2 ou -2
 int last_move = 0;	 // est = 1 si x==0 et que le dernier movement est setorientation(1)
 float KP1 = 0.0015;
 
+enum MoveState {stand_by, check_in, check_out, livraison};
+MoveState move_state = MoveState::stand_by;
+bool car_key = false;
+
 // Pour le suiveur de ligne
 int CaptLeft = A10; // A changer si PIN inverse
 int CaptMid = A11;
@@ -232,6 +236,10 @@ void suivreLigne()
 	Serial.print("Valeur du capteur du milieu : ");
 	Serial.println(ligneMilieu);
 	
+
+
+	
+
 	//if ligne milieu is on
 	if ((ligneMilieu > seuilSuiveurLigne) && (ligneDroite <seuilSuiveurLigne) && (ligneGauche < seuilSuiveurLigne))
 	{
@@ -277,3 +285,77 @@ void suivreLigne()
 }
 
 
+
+void suivreLigneIntersect(int: num_intersect){
+	ligneGauche = analogRead(CaptLeft);
+	ligneMilieu = analogRead(CaptMid);
+	ligneDroite = analogRead(CaptRight);
+
+	i = num_intersect
+	while i > 0 {
+		avanceLent();
+		//if all is on
+		if ((ligneMilieu > seuilSuiveurLigne) && (ligneDroite > seuilSuiveurLigne) && (ligneGauche > seuilSuiveurLigne))
+		{
+			i--;
+		}
+	}
+	stop()
+}
+
+void logiqueMouvement(){
+	switch (move_state)
+	{
+	case MoveState::stand_by : break;
+	
+	case MoveState::check_in :
+		if car_key {
+			//make function to turn (180 deg)
+			suivreLigneIntersect(2);
+			//make function to turn (90 deg left)
+			suivreLigneIntersect(/*Key Num*/);
+			//turn 90 deg right
+			//deposit key
+			//turn 90 deg right
+			suivreLigneIntersect(/* 2*Key Num */);
+			//turn 90 left
+			//deposit keys
+			//turn 90 left
+			suivreLigneIntersect(/* Key Num*/);
+			//turn 90 left
+			suivreLigneIntersect(2)
+		}
+		else {
+			//make function to turn (180 deg)
+			suivreLigneIntersect(2);
+			//turn 90 right
+			suivreLigneIntersect(/*Key Num*/);
+			//turn 90 left
+			//deposit keys
+			//turn 90 left
+			suivreLigneIntersect(/* Key Num*/);
+			//turn 90 left
+			suivreLigneIntersect(2)
+		}
+			
+	case MoveState::check_out :
+
+	case MoveState::livraison :
+
+	default:
+		break;
+	}
+}
+
+//FAIRE UN LOOP AVEC UN COMPTEUR A QUELQUE PART POUR SAVOIR ON EST RENDU OÙ POUR LES CHAMBRES
+// FONCTION GOINTERKEYDOOR ( même pour les clés voiture et chambre, tout ce qu'il aura a faire c ce positionner de maniere a faire face a droite ou a gauche avant)
+//MAYBE ON DEVRAIT ÇA DANS UNE FONCTION APPART qui s'applique pour clé chambre et voiture -note de gaby
+	//si chambre 1= Avancer vers la ligne jusqu'au carré + tourner 90 deg vers la droite + avancer jusqu'à clé
+	//si chambre 3 = 2 x Avancer vers la ligne jusqu'au carré + tourner 90 deg vers la droite + avancer jusqu'à clé
+	//si chambre 3 = 3 x Avancer vers la ligne jusqu'au carré + tourner 90 deg vers la droite + avancer jusqu'à clé
+	//si chambre 3 = 4 x Avancer vers la ligne jusqu'au carré + tourner 90 deg vers la droite + avancer jusqu'à clé
+
+// FONCTION RETURNINTERKEYDOOR 
+	//recule jusqu'au carré + tourner 90 deg vers la droite 
+	// Sense inverse de GOINTERKEYDOOR ( nous retourne au interkeydoor )
+	
