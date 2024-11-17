@@ -231,40 +231,49 @@ void suivreLigne()
 	Serial.println(ligneGauche);
 	Serial.print("Valeur du capteur du milieu : ");
 	Serial.println(ligneMilieu);
-
+	
+	//if ligne milieu is on
 	if ((ligneMilieu > seuilSuiveurLigne) && (ligneDroite <seuilSuiveurLigne) && (ligneGauche < seuilSuiveurLigne))
 	{
 		avanceLent();
 	}
 
+	//if ligne droit is on
 	if ((ligneDroite > seuilSuiveurLigne) && (ligneMilieu < seuilSuiveurLigne) && (ligneGauche < seuilSuiveurLigne))
 	{
 		ajusterdroite();
 	}
 
+	//if ligne gauche is on
 	if ((ligneGauche > seuilSuiveurLigne) && (ligneMilieu < seuilSuiveurLigne) && (ligneDroite < seuilSuiveurLigne))
 	{
 		ajustergauche();
 	}
 
+	//if all is off
 	if ((ligneMilieu < seuilSuiveurLigne) && (ligneDroite < seuilSuiveurLigne) && (ligneGauche < seuilSuiveurLigne))
 	{
 		avanceLent();
 	}
 
+	//if all is on
 	if ((ligneMilieu > seuilSuiveurLigne) && (ligneDroite > seuilSuiveurLigne) && (ligneGauche > seuilSuiveurLigne))
 	{
 		verification = 1;
 		avanceLent();
 	}
 
+	//if ligne milieu and droite on
 	if ((ligneMilieu > seuilSuiveurLigne) && (ligneDroite > seuilSuiveurLigne) && (ligneGauche < seuilSuiveurLigne))
 	{
 		ajusterdroite();
 	}
 
+	//if ligne milieu and gauche on
 	if ((ligneMilieu > seuilSuiveurLigne) && (ligneDroite < seuilSuiveurLigne) && (ligneGauche > seuilSuiveurLigne))
 	{
 		ajustergauche();
 	}
 }
+
+
