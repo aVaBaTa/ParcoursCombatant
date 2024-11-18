@@ -1,14 +1,13 @@
 #include <LibRobus.h>
 #include <Arduino.h>
 
-bool bumperArr;
+// ---------------------------- Contrôle Général du Mouvement ----------------------------
+//POUR PID 
 int32_t difference_moteurs = 0;
-uint32_t pulses_droit = 0;
+uint32_t pulses_droit = 0; // Compteur de pulses pour moteur droit
 uint32_t pulses_gauche = 0;
-int vertpin = 48;
-int rougepin = 49;
-bool vert = false;
-bool rouge = false;
+float KP1 = 0.0015; // Constante proportionnelle pour le contrôle PID ()
+
 int etat = -1; // = 0 arrêt 1 = avance 2 = recule 3 = TourneDroit 4 = TourneGauche
 int etatPast = 0;
 float vitesse = 0.35;
@@ -16,16 +15,21 @@ int x = 0;			 // x = 0 initialisation et représente la coordonnée x de la case
 int y = 0;			 // y = 0 initialisation et représente la coordonnée y de la case de départ
 int regardeFace = 0; // Regarde à : AVANT = 0, GAUCHE = -1, DERRIÈRE = 2 ou -2, DROITE = 1
 int last_move = 0;	 // est = 1 si x==0 et que le dernier movement est setorientation(1)
-float KP1 = 0.0015;
 
-enum MoveState {stand_by, check_in, check_out, livraison};
-MoveState move_state = MoveState::stand_by;
-bool car_key = false;
+enum MoveState {
+	stand_in,
+	check_in,
+	check_out,
+	livraison
+}
+
+MoveState move_state = MoveState::stand_in; // état initial du mouvement du robot
+bool car_key = false; // booléen pour vérifier si le robot a une clé de voiture
 
 // Pour le suiveur de ligne
 int CaptLeft = A10; // A changer si PIN inverse
 int CaptMid = A11;
-int CaptRight = A12; // A chanmger si PIN inverse
+int CaptRight = A12; // A changer si PIN inverse
 int ligneGauche = 0;
 int ligneMilieu = 0;
 int ligneDroite = 0;
@@ -125,7 +129,7 @@ void avance(int nombre_pulses)
 	pause();
 };
 void recule(int nmbr_pulses)
-{
+{MoveState
 	resetEncodeurs();
 	while (pulses_gauche < nmbr_pulses) // 1800 pulses = 950ms représente le nombre de pulses avant que la fonction tourneDroit arrête
 	{
@@ -135,6 +139,7 @@ void recule(int nmbr_pulses)
 	}
 	pause();
 };
+
 void tourneDroit(int nombre_pulses)
 {
 	resetEncodeurs();
@@ -237,70 +242,85 @@ void suivreLigne()
 	Serial.println(ligneMilieu);
 	
 
-
-	
-
 	//if ligne milieu is on
 	if ((ligneMilieu > seuilSuiveurLigne) && (ligneDroite <seuilSuiveurLigne) && (ligneGauche < seuilSuiveurLigne))
 	{
-		avanceLent();
+		avanceLent(); //0
 	}
 
 	//if ligne droit is on
 	if ((ligneDroite > seuilSuiveurLigne) && (ligneMilieu < seuilSuiveurLigne) && (ligneGauche < seuilSuiveurLigne))
 	{
-		ajusterdroite();
+		ajusterdroite(); //1
 	}
 
 	//if ligne gauche is on
 	if ((ligneGauche > seuilSuiveurLigne) && (ligneMilieu < seuilSuiveurLigne) && (ligneDroite < seuilSuiveurLigne))
 	{
-		ajustergauche();
+		ajustergauche(); //2
 	}
 
 	//if all is off
 	if ((ligneMilieu < seuilSuiveurLigne) && (ligneDroite < seuilSuiveurLigne) && (ligneGauche < seuilSuiveurLigne))
 	{
-		avanceLent();
+		avanceLent(); //0
 	}
 
 	//if all is on
 	if ((ligneMilieu > seuilSuiveurLigne) && (ligneDroite > seuilSuiveurLigne) && (ligneGauche > seuilSuiveurLigne))
 	{
 		verification = 1;
-		avanceLent();
+		avanceLent(); //3
 	}
 
 	//if ligne milieu and droite on
 	if ((ligneMilieu > seuilSuiveurLigne) && (ligneDroite > seuilSuiveurLigne) && (ligneGauche < seuilSuiveurLigne))
 	{
-		ajusterdroite();
+		ajusterdroite(); //1
 	}
 
 	//if ligne milieu and gauche on
 	if ((ligneMilieu > seuilSuiveurLigne) && (ligneDroite < seuilSuiveurLigne) && (ligneGauche > seuilSuiveurLigne))
 	{
-		ajustergauche();
+		ajustergauche(); //2
 	}
 }
 
 
-
-void suivreLigneIntersect(int: num_intersect){
+//This function takes in a number of intersections it wants to pass ( through the parameter)
+//and makes the robot follow the line until the numbers of intersections have been reached
+void suivreLigneIntersect(int num_intersect){
 	ligneGauche = analogRead(CaptLeft);
 	ligneMilieu = analogRead(CaptMid);
 	ligneDroite = analogRead(CaptRight);
 
-	i = num_intersect
-	while i > 0 {
-		avanceLent();
+	int i = 0;
+	while i < num_intersect {
 		//if all is on
-		if ((ligneMilieu > seuilSuiveurLigne) && (ligneDroite > seuilSuiveurLigne) && (ligneGauche > seuilSuiveurLigne))
-		{
-			i--;
+		//if ligne milieu is on
+		int etat = 2 * (int)(ligneGauche > seuilSuiveurLigne) + (int)(ligneDroite > seuilSuiveurLigne);// conversion en nombre binaire, donc on fait *2
+		switch (etat) {
+			case 0:
+				avanceLent();
+				break;
+			case 1:
+				ajusterdroite();
+				break;
+			case 2:
+				ajustergauche();
+				break;
+			case 3:
+				if (ligneMilieu > seuilSuiveurLigne){
+					i++; // compteur
+					avanceLent();
+				/*}
+				else {
+					arret();
+				}*/
+				break;
 		}
 	}
-	stop()
+	arret();
 }
 
 void logiqueMouvement(){
@@ -311,6 +331,7 @@ void logiqueMouvement(){
 	case MoveState::check_in :
 		if car_key {
 			//make function to turn (180 deg)
+			tourneGauche(3600);
 			suivreLigneIntersect(2);
 			//make function to turn (90 deg left)
 			suivreLigneIntersect(/*Key Num*/);
