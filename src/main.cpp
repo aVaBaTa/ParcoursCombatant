@@ -1,5 +1,8 @@
 #include "settings.h"
 
+int main(){
+	return 0;
+}
 /*
 	STATE 0: stand by (LCD -> Next state)
 	STATE 1: check-in (Car info & Room Info -> Get Room  || Deposit Car (and come back)-> STATE 0)

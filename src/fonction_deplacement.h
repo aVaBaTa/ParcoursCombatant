@@ -22,7 +22,7 @@ enum MoveState {
 	stand_by,
 	check_in,
 	check_out,
-	get_car,
+	car_service,
 	livraison
 };
 
@@ -136,8 +136,8 @@ void recule(int nmbr_pulses)
 	resetEncodeurs();
 	while (pulses_gauche < nmbr_pulses) // 1800 pulses = 950ms représente le nombre de pulses avant que la fonction tourneDroit arrête
 	{
-		MOTOR_SetSpeed(RIGHT, -1 * vitesse);
-		MOTOR_SetSpeed(LEFT, -1 * vitesse);
+		MOTOR_SetSpeed(RIGHT, -0.5 * vitesse);
+		MOTOR_SetSpeed(LEFT, -0.5 * vitesse);
 		pulses_gauche = - (ENCODER_Read(LEFT));
 	}
 	pause();
@@ -317,10 +317,9 @@ void suivreLigneIntersect(int num_intersect){
 				if (ligneMilieu > seuilSuiveurLigne){
 					i++; // compteur
 					avanceLent();
-				/*}
+				}
 				else {
 					arret();
-				}*/
 				break;
 			}
 		}
@@ -369,7 +368,7 @@ void logiqueMouvement(){
 		// tourne 180 deg
 		tourneGauche(3600);
 		suivreLigneIntersect(1);
-		//turn 90 right
+		//turn 90 righ
 		tourneDroit(1800);
 		suivreLigneIntersect(key_num);
 		//turn 90 left
@@ -423,16 +422,79 @@ void logiqueMouvement(){
 		}
 		suivreLigneIntersect(2);
 		//AFFICHAGE LCD POUR MENU
-		//pour reset
+		//pour reset ( revenir en stand_by i.e. start)
 		move_state = MoveState::stand_by;
 		car_key = false;
 		break;
 
-
-	case MoveState::car_service : //service clés de voiture seulement
-	
-	
+	case MoveState::car_service : //service clés de voiture seulement //are retour et recuperation
+		
+		//make function to turn gauche (180 deg)
+		tourneGauche(3600);
+		//follow the line until it sees two intersections
+		suivreLigneIntersect(2);
+		//make function to turn (90 deg left)
+		tourneGauche(1800);
+		suivreLigneIntersect(key_num); //note: key number is the same as the # of intersections
+		//turn 90 deg right
+		tourneDroit(1800);
+		// va sur point orange
+		suivreLigneIntersect(1);
+		//deposit car key (FONCTION POUR PINCE)
+		// tourne 180 deg
+		tourneGauche(3600);
+		suivreLigneIntersect(1);
+		//turn 90 left
+		tourneGauche(1800);
+		//va sur point orange
+		suivreLigneIntersect(key_num);
+		tourneDroit(1800);
+		suivreLigneIntersect(2);
+		//AFFICHAGE LCD POUR MENU
+		//pour reset
+		move_state = MoveState::stand_by;
+		car_key = false;
+		break;
 	case MoveState::livraison :
+		//make function to turn gauche (180 deg)
+		tourneGauche(3600);
+		//follow the line until it sees two intersections
+		suivreLigneIntersect(1);
+		tourneGauche(1800);
+		suivreLigneIntersect(1);
+		tourneGauche(1800);
+		suivreLigneIntersect(1);
+		tourneGauche(3600);
+		suivreLigneIntersect(1);
+		tourneDroit(1800);
+		suivreLigneIntersect(2);
+			if ( key_num = 1){
+			suivreLigneIntersect(1);
+			//drop colis
+			recule(1000); //À REVOIR AVEC TEST (besoin de reculer pour dposer colis)
+			//make function to turn gauche (180 deg)
+			tourneGauche(3600);
+			suivreLigneIntersect(2);
+			}
+			else{
+			tourneDroit(1800);
+			suivreLigneIntersect(key_num -1);
+			tourneGauche(1800);
+			suivreLigneIntersect(1);
+			recule(1000); //À REVOIR AVEC TEST (besoin de reculer pour dposer colis)
+			tourneGauche(3600);
+			suivreLigneIntersect(1);
+			tourneDroit(1800);
+			suivreLigneIntersect(key_num -1);
+			tourneGauche(1800);
+			suivreLigneIntersect(1);
+			}
+		tourneGauche(1800);
+		suivreLigneIntersect(1);
+		//pour reset
+		move_state = MoveState::stand_by;
+		car_key = false;
+		break;
 	}
-}
+};
 
