@@ -24,7 +24,7 @@ enum MoveState {
 	check_out,
 	get_car,
 	livraison
-}
+};
 
 MoveState move_state = MoveState::stand_by; // état initial du mouvement du robot
 bool car_key = false; // booléen pour vérifier si le robot a une clé de voiture
@@ -299,7 +299,7 @@ void suivreLigneIntersect(int num_intersect){
 	ligneDroite = analogRead(CaptRight);
 
 	int i = 0;
-	while i < num_intersect {
+	while (i < num_intersect) {
 		//if all is on
 		//if ligne milieu is on
 		int etat = 2 * (int)(ligneGauche > seuilSuiveurLigne) + (int)(ligneDroite > seuilSuiveurLigne);// conversion en nombre binaire, donc on fait *2
@@ -338,7 +338,7 @@ void logiqueMouvement(){
 		tourneGauche(3600);
 		//follow the line until it sees two intersections
 		suivreLigneIntersect(2);
-		if car_key { // If it has the car key
+		if ( car_key ) { // If it has the car key
 			//make function to turn (90 deg left)
 			tourneGauche(1800);
 			suivreLigneIntersect(key_num); //note: key number is the same as the # of intersections
@@ -402,7 +402,7 @@ void logiqueMouvement(){
 		//turn 90 right
 		tourneDroit(1800);	
 		
-		if car_key { // If it has the car key
+		if ( car_key ) { // If it has the car key
 			suivreLigneIntersect(2 * key_num);
 			//turn 90 deg right
 			tourneDroit(1800);
