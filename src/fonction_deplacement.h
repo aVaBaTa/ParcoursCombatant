@@ -15,15 +15,18 @@ int x = 0;			 // x = 0 initialisation et représente la coordonnée x de la case
 int y = 0;			 // y = 0 initialisation et représente la coordonnée y de la case de départ
 int regardeFace = 0; // Regarde à : AVANT = 0, GAUCHE = -1, DERRIÈRE = 2 ou -2, DROITE = 1
 int last_move = 0;	 // est = 1 si x==0 et que le dernier movement est setorientation(1)
+int key_num;
+
 
 enum MoveState {
-	stand_in,
+	stand_by,
 	check_in,
 	check_out,
+	get_car,
 	livraison
 }
 
-MoveState move_state = MoveState::stand_in; // état initial du mouvement du robot
+MoveState move_state = MoveState::stand_by; // état initial du mouvement du robot
 bool car_key = false; // booléen pour vérifier si le robot a une clé de voiture
 
 // Pour le suiveur de ligne
@@ -289,6 +292,7 @@ void suivreLigne()
 
 //This function takes in a number of intersections it wants to pass ( through the parameter)
 //and makes the robot follow the line until the numbers of intersections have been reached
+// Pour que la fonction fonctionne, il faut que chaque intersection du parcour puisse déclencher les trois détecteurs de lignes (G, M et D)
 void suivreLigneIntersect(int num_intersect){
 	ligneGauche = analogRead(CaptLeft);
 	ligneMilieu = analogRead(CaptMid);
@@ -318,6 +322,7 @@ void suivreLigneIntersect(int num_intersect){
 					arret();
 				}*/
 				break;
+			}
 		}
 	}
 	arret();
@@ -329,42 +334,105 @@ void logiqueMouvement(){
 	case MoveState::stand_by : break;
 	
 	case MoveState::check_in :
-		if car_key {
-			//make function to turn (180 deg)
-			tourneGauche(3600);
-			suivreLigneIntersect(2);
+		//make function to turn gauche (180 deg)
+		tourneGauche(3600);
+		//follow the line until it sees two intersections
+		suivreLigneIntersect(2);
+		if car_key { // If it has the car key
 			//make function to turn (90 deg left)
-			suivreLigneIntersect(/*Key Num*/);
+			tourneGauche(1800);
+			suivreLigneIntersect(key_num); //note: key number is the same as the # of intersections
 			//turn 90 deg right
-			//deposit key
-			//turn 90 deg right
-			suivreLigneIntersect(/* 2*Key Num */);
-			//turn 90 left
-			//deposit keys
-			//turn 90 left
-			suivreLigneIntersect(/* Key Num*/);
-			//turn 90 left
-			suivreLigneIntersect(2)
+			tourneDroit(1800);
+			// va sur point orange
+			suivreLigneIntersect(1);
+			//deposit car key (FONCTION POUR PINCE)
+			// tourne 180 deg
+			tourneGauche(3600);
+			suivreLigneIntersect(1);
+			//turn 90 deg left
+			tourneGauche(1800);
+			suivreLigneIntersect(2 * key_num);
+			
 		}
 		else {
-			//make function to turn (180 deg)
-			suivreLigneIntersect(2);
-			//turn 90 right
-			suivreLigneIntersect(/*Key Num*/);
-			//turn 90 left
-			//deposit keys
-			//turn 90 left
-			suivreLigneIntersect(/* Key Num*/);
-			//turn 90 left
-			suivreLigneIntersect(2)
+			//90 deg droite
+			tourneDroit(1800);
+			suivreLigneIntersect(key_num);
+		
 		}
-			
-	case MoveState::check_out :
-
-	case MoveState::livraison :
-
-	default:
+		//turn 90 left
+		tourneGauche(1800);
+		//va sur point orange
+		suivreLigneIntersect(1);
+		//Prend clé voiture (FONCTION POUR PINCE)
+		// tourne 180 deg
+		tourneGauche(3600);
+		suivreLigneIntersect(1);
+		//turn 90 right
+		tourneDroit(1800);
+		suivreLigneIntersect(key_num);
+		//turn 90 left
+		tourneGauche(1800);
+		suivreLigneIntersect(2);
+		//AFFICHAGE LCD POUR MENU
+		//pour reset
+		move_state = MoveState::stand_by;
+		car_key = false;
 		break;
+
+		
+		
+	case MoveState::check_out :
+		//make function to turn gauche (180 deg)
+		tourneGauche(3600);
+		//follow the line until it sees two intersections
+		suivreLigneIntersect(2);
+		//90 deg droite
+		tourneDroit(1800);
+		suivreLigneIntersect(key_num);
+		//turn 90 left
+		tourneGauche(1800);
+		//va sur point orange
+		suivreLigneIntersect(1);
+		//retour clé de chambre (FONCTION POUR PINCE)
+		// tourne 180 deg
+		tourneGauche(3600);
+		suivreLigneIntersect(1);
+		//turn 90 right
+		tourneDroit(1800);	
+		
+		if car_key { // If it has the car key
+			suivreLigneIntersect(2 * key_num);
+			//turn 90 deg right
+			tourneDroit(1800);
+			// va sur point orange
+			suivreLigneIntersect(1);
+			//deposit car key (FONCTION POUR PINCE)
+			// tourne 180 deg
+			tourneGauche(3600);
+			suivreLigneIntersect(1);
+			//turn 90 deg left
+			tourneGauche(1800);
+			suivreLigneIntersect(key_num);
+			tourneDroit(1800);
+		}
+		else {
+			suivreLigneIntersect(key_num);
+			tourneGauche(1800);
+		}
+		suivreLigneIntersect(2);
+		//AFFICHAGE LCD POUR MENU
+		//pour reset
+		move_state = MoveState::stand_by;
+		car_key = false;
+		break;
+
+
+	case MoveState::car_service : //service clés de voiture seulement
+	
+	
+	case MoveState::livraison :
 	}
 }
 
