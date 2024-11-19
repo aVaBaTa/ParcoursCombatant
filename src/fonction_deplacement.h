@@ -24,7 +24,7 @@ enum MoveState {
 	check_out,
 	get_car,
 	livraison
-}
+};
 
 MoveState move_state = MoveState::stand_by; // état initial du mouvement du robot
 bool car_key = false; // booléen pour vérifier si le robot a une clé de voiture
