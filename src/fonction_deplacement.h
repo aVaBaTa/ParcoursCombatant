@@ -320,8 +320,8 @@ void suivreLigneIntersect(int num_intersect){
 				}
 				else {
 					arret();
-				break;
 			}
+			break;
 		}
 	}
 	arret();
