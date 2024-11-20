@@ -1,7 +1,15 @@
 #include "settings.h"
 
-int main(){
-	return 0;
+void setup()
+{
+	BoardInit();
+	Serial.begin(9600);
+}
+
+void loop()
+{
+	move_state = 1;
+	logiqueMouvement();
 }
 /*
 	STATE 0: stand by (LCD -> Next state)

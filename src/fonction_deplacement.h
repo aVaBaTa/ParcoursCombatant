@@ -26,7 +26,7 @@ enum MoveState {
 	livraison
 };
 
-MoveState move_state = MoveState::stand_by; // état initial du mouvement du robot
+int move_state = 0; // état initial du mouvement du robot
 bool car_key = false; // booléen pour vérifier si le robot a une clé de voiture
 
 // Pour le suiveur de ligne
@@ -132,7 +132,7 @@ void avance(int nombre_pulses)
 	pause();
 };
 void recule(int nmbr_pulses)
-{MoveState
+{
 	resetEncodeurs();
 	while (pulses_gauche < nmbr_pulses) // 1800 pulses = 950ms représente le nombre de pulses avant que la fonction tourneDroit arrête
 	{
@@ -330,9 +330,14 @@ void suivreLigneIntersect(int num_intersect){
 void logiqueMouvement(){
 	switch (move_state)
 	{
-	case MoveState::stand_by : break;
 	
-	case MoveState::check_in :
+	case (0):
+	
+		break;
+	
+	
+	case (1):
+	
 		//make function to turn gauche (180 deg)
 		tourneGauche(3600);
 		//follow the line until it sees two intersections
@@ -376,13 +381,15 @@ void logiqueMouvement(){
 		suivreLigneIntersect(2);
 		//AFFICHAGE LCD POUR MENU
 		//pour reset
-		move_state = MoveState::stand_by;
+		move_state = 0;
 		car_key = false;
 		break;
+	
 
 		
 		
-	case MoveState::check_out :
+	case (2):
+	
 		//make function to turn gauche (180 deg)
 		tourneGauche(3600);
 		//follow the line until it sees two intersections
@@ -403,7 +410,6 @@ void logiqueMouvement(){
 		
 		if ( car_key ) { // If it has the car key
 			suivreLigneIntersect(2 * key_num);
-			//turn 90 deg right
 			tourneDroit(1800);
 			// va sur point orange
 			suivreLigneIntersect(1);
@@ -423,11 +429,14 @@ void logiqueMouvement(){
 		suivreLigneIntersect(2);
 		//AFFICHAGE LCD POUR MENU
 		//pour reset ( revenir en stand_by i.e. start)
-		move_state = MoveState::stand_by;
+		move_state = 0;
 		car_key = false;
 		break;
+	
 
-	case MoveState::car_service : //service clés de voiture seulement //are retour et recuperation
+	case (3):
+	
+//service clés de voiture seulement //are retour et recuperation
 		
 		//make function to turn gauche (180 deg)
 		tourneGauche(3600);
@@ -452,10 +461,13 @@ void logiqueMouvement(){
 		suivreLigneIntersect(2);
 		//AFFICHAGE LCD POUR MENU
 		//pour reset
-		move_state = MoveState::stand_by;
+		move_state = 0;
 		car_key = false;
 		break;
-	case MoveState::livraison :
+	
+
+	case (4):
+	
 		//make function to turn gauche (180 deg)
 		tourneGauche(3600);
 		//follow the line until it sees two intersections
@@ -468,7 +480,7 @@ void logiqueMouvement(){
 		suivreLigneIntersect(1);
 		tourneDroit(1800);
 		suivreLigneIntersect(2);
-			if ( key_num = 1){
+			if ( key_num == 1){
 			suivreLigneIntersect(1);
 			//drop colis
 			recule(1000); //À REVOIR AVEC TEST (besoin de reculer pour dposer colis)
@@ -492,9 +504,11 @@ void logiqueMouvement(){
 		tourneGauche(1800);
 		suivreLigneIntersect(1);
 		//pour reset
-		move_state = MoveState::stand_by;
+		move_state = 0;
 		car_key = false;
 		break;
-	}
+	
+}
+
 };
 

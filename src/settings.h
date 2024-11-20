@@ -3,8 +3,7 @@
 #include <LibRobUS.h>
 #include <Wire.h>
 #include <Adafruit_TCS34725.h>
-
-#include "detecteur.h"
+#include "fonction_deplacement.h"
 
 
 // Coucou Xavier
