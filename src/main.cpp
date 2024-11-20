@@ -1,61 +1,53 @@
-// UTFT_Demo_480x320
-// Copyright (C)2015 Rinky-Dink Electronics, Henning Karlsen. All right reserved
-// web: http://www.RinkyDinkElectronics.com/
-//
-// This program is a demo of how to use most of the functions
-// of the library with a supported display modules.
-//
-// This demo was made for modules with a screen resolution
-// of 480x320 pixels.
-//
-// This program requires the UTFT library.
-//
-
-// ################################################
-//  GLUE class that implements the UTFT API
-//  replace UTFT include and constructor statements
-//  remove UTFT font declaration e.g. SmallFont
-// ################################################
-
-#include <SPFD5408_TouchScreen.h>
-
+#include <Arduino.h>
+#include <LibRobus.h>
 #include <UTFTGLUE.h>                   //use GLUE class and constructor
 UTFTGLUE myGLCD(0, A2, A1, A3, A4, A0); // all dummy args
 
 
-TouchScreen ts  = TouchScreen( 9, 8, A3, A2);
-// Declare which fonts we will be using
-// extern uint8_t SmallFont[];      //GLUE defines as GFXFont ref
 
-// Set the pins to the correct ones for your development shield
-// ------------------------------------------------------------
-// Arduino Uno / 2009:
-// -------------------
-// Standard Arduino Uno/2009 shield            : <display model>,A5,A4,A3,A2
-// DisplayModule Arduino Uno TFT shield        : <display model>,A5,A4,A3,A2
-//
-// Arduino Mega:
-// -------------------
-// Standard Arduino Mega/Due shield            : <display model>,38,39,40,41
-// CTE TFT LCD/SD Shield for Arduino Mega      : <display model>,38,39,40,41
-//
-// Remember to change the model parameter to suit your display module!
-// UTFT myGLCD(CTE32HR,38,39,40,41);
 
-void parameter()
-{
+
+// Include the required Wire library for I2C<br>#include <Wire.h>
+int LED = 13;
+int Input = 0;
+void receiveEvent(int bytes) {
+  Input = Wire.read();    // read one character from the I2C
 }
+
+
+
+
+
+
 int DisplaySizeX = myGLCD.getDisplayXSize();
-int FirstDisplay = 0;
+int DisplayState = 1;
+int ChangeState = 0;
+
+
+
+
+
+
+
+
+
+
+
 
 void setup()
 {
-    randomSeed(analogRead(0));
-
+    
+    Serial.begin(9600);
     // Setup the LCD
     myGLCD.InitLCD();
-    //myGLCD.setFont(SmallFont);
-    parameter();
+    // myGLCD.setFont(SmallFont);
+
+  pinMode (LED, OUTPUT);
+  // Start the I2C Bus as Slave on address 9
+  Wire.begin(9); 
+  // Attach a function to trigger when something is received.
+  Wire.onReceive(receiveEvent);
+    
 }
 
 void loop()
@@ -65,57 +57,73 @@ void loop()
     int y, y2;
     int r;
 
-    Serial.println(ts.isTouching());
-
     // Clear the screen and draw the frame
-     //myGLCD.clrScr();
-    if (FirstDisplay == 0){
-        myGLCD.clrScr();
-        myGLCD.setColor(255, 0, 0);
-        myGLCD.setBackColor(150,150,150);
-        //myGLCD.setFont(BigFont);
-        myGLCD.setTextSize(5);
-        myGLCD.print("* Bienvenue *", CENTER, 100);
-        
-        
-       // myGLCD.setFont(SmallFont);
-       myGLCD.setTextSize(1);
-        myGLCD.print("* Appuyer sur l ecran pour commencer *", CENTER, 170);
-        FirstDisplay = 1;
+    // myGLCD.clrScr();
+  
+    if (Input > 0){
+      ChangeState = 1;
+      DisplayState = Input;
+      Input = 0;
     }
 
-    
-    delay(5000);
-
-
-
-    if (FirstDisplay == 1){
+    if (ChangeState == 1){
         myGLCD.clrScr();
-        myGLCD.setColor(255, 0, 0);
-        myGLCD.setBackColor(150,150,150);
-        //myGLCD.setFont(BigFont);
+        ChangeState = 0;
+    }
+
+
+
+    if (DisplayState == 0)
+    {
+        //myGLCD.clrScr();
+        myGLCD.fillScreen(TFT_WHITE);
+        myGLCD.setColor(0, 0, 255);
+        myGLCD.setBackColor(255, 255, 255);
         myGLCD.setTextSize(5);
         myGLCD.print("* Bienvenue *", CENTER, 100);
-        
-        
-       // myGLCD.setFont(SmallFont);
-       myGLCD.setTextSize(1);
+        myGLCD.setTextSize(2);
+        myGLCD.print("* Appuyer sur le bouton pour commencer *", CENTER, 170);
+        DisplayState = -1;
+    }
+
+
+    // Ecran d option
+    if (DisplayState == 1)
+    {   
+        myGLCD.fillScreen(TFT_WHITE);
+        myGLCD.setColor(0, 0, 255);
+        myGLCD.setBackColor(255, 255, 255);
+        myGLCD.setTextSize(3);
+        myGLCD.print("* Choisir une option *", CENTER, 25);
+        myGLCD.setTextSize(2);
+        myGLCD.print("Option 1 -> Reserver une chambre", LEFT, 100);
+        myGLCD.print("Option 2 -> Recuperer ses clees", LEFT, 120);
+        myGLCD.print("Option 3 -> Livraison de colis", LEFT, 140);
+        DisplayState = -1;
+    }
+    // Ecran Pour les Clées
+    if (DisplayState == 2)
+    {
+        myGLCD.setColor(255, 0, 0);
+        myGLCD.setBackColor(150, 150, 150);
+        myGLCD.setTextSize(5);
+        myGLCD.print("* Bienvenue *", CENTER, 100);
+        myGLCD.setTextSize(1);
         myGLCD.print("* ----- *", CENTER, 170);
-        FirstDisplay = 2;
+        DisplayState = -1;
+    }
+     // Ecran Pour les colis
+    if (DisplayState == 3)
+    {
+        myGLCD.setColor(255, 0, 0);
+        myGLCD.setBackColor(150, 150, 150);
+        myGLCD.setTextSize(5);
+        myGLCD.print("* Bienvenue *", CENTER, 100);
+        myGLCD.setTextSize(1);
+        myGLCD.print("* ----- *", CENTER, 170);
+        DisplayState = -1;
     }
 
-    /*myGLCD.setColor(255, 0, 0);
-    myGLCD.fillRect(0, 0, 479, 13);
 
-    myGLCD.setColor(64, 64, 64);
-    myGLCD.fillRect(0, 306, 479, 319);
-
-    myGLCD.setColor(255, 255, 255);
-    myGLCD.setBackColor(255, 0, 0);
-
-    myGLCD.print("* Universal Color TFT Display Library *", CENTER, 1);
-    myGLCD.setBackColor(64, 64, 64);*/
-
-    // myGLCD.setColor(255,255,0);
-    // myGLCD.print("<http://www.RinkyDinkElectronics.com/>", CENTER, 307);
+  
 }
