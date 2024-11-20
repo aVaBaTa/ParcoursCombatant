@@ -101,19 +101,86 @@ void loop()
         myGLCD.print("Option 3 -> Livraison de colis", LEFT, 140);
         DisplayState = -1;
     }
-    // Ecran Pour les Clées
-    if (DisplayState == 2)
+
+
+    
+    // Ecran Pour Reserver une chambre
+    /*if (DisplayState == 2)
     {
-        myGLCD.setColor(255, 0, 0);
-        myGLCD.setBackColor(150, 150, 150);
-        myGLCD.setTextSize(5);
-        myGLCD.print("* Bienvenue *", CENTER, 100);
-        myGLCD.setTextSize(1);
-        myGLCD.print("* ----- *", CENTER, 170);
+        myGLCD.fillScreen(TFT_WHITE);
+        myGLCD.setColor(0, 0, 255);
+        myGLCD.setBackColor(255, 255, 255);
+        myGLCD.setTextSize(3);
+        myGLCD.print("* Reserver une chambre *", CENTER, 25);
+        myGLCD.print("* Voulez Deposer vos clees de voitures? *", CENTER, 45);
+        myGLCD.setTextSize(2);
+        myGLCD.print("Option 1 -> Oui", LEFT, 100);
+        myGLCD.print("Option 2 -> Non", LEFT, 120);
         DisplayState = -1;
     }
-     // Ecran Pour les colis
+
+
+
+
+    /// Verrifier l' se qui est ecrit si c est pertinent
+        if (DisplayState == 3)
+    {
+        myGLCD.fillScreen(TFT_WHITE);
+        myGLCD.setColor(0, 0, 255);
+        myGLCD.setBackColor(255, 255, 255);
+        myGLCD.setTextSize(3);
+        myGLCD.print("* Laisser nous le soins d'entreposer vos clees *", CENTER, 25);
+        //myGLCD.print("* Voulez Deposer vos clees de voitures? *", CENTER, 25);
+        myGLCD.setTextSize(2);
+        myGLCD.print("Option 1 -> Oui", LEFT, 100);
+        myGLCD.print("Option 2 -> Non", LEFT, 120);
+        DisplayState = -1;
+    }*/
+
+
+
+
+    // les clees ne sont pas laisser
+    if (DisplayState == 4)
+    {
+        myGLCD.fillScreen(TFT_WHITE);
+        myGLCD.setColor(0, 0, 255);
+        myGLCD.setBackColor(255, 255, 255);
+        myGLCD.setTextSize(3);
+        myGLCD.print("* Laisser nous le soins d'entreposer vos clees *", CENTER, 25);
+        //myGLCD.print("* Voulez Deposer vos clees de voitures? *", CENTER, 25);
+        myGLCD.setTextSize(2);
+        myGLCD.print("Option 1 -> Oui", LEFT, 100);
+        myGLCD.print("Option 2 -> Non", LEFT, 120);
+        DisplayState = -1;
+    }
+
+
+
+    
     if (DisplayState == 3)
+    {
+        myGLCD.fillScreen(TFT_WHITE);
+        myGLCD.setColor(0, 0, 255);
+        myGLCD.setBackColor(255, 255, 255);
+        myGLCD.setTextSize(3);
+        myGLCD.print("* Laisser nous le soins d'entreposer vos clees *", CENTER, 25);
+        //myGLCD.print("* Voulez Deposer vos clees de voitures? *", CENTER, 25);
+        myGLCD.setTextSize(2);
+        myGLCD.print("Option 1 -> Oui", LEFT, 100);
+        myGLCD.print("Option 2 -> Non", LEFT, 120);
+        DisplayState = -1;
+    }
+
+
+
+
+
+
+
+
+     // Ecran Pour les colis
+    if (DisplayState == -2)
     {
         myGLCD.setColor(255, 0, 0);
         myGLCD.setBackColor(150, 150, 150);
