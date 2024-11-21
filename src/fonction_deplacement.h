@@ -10,12 +10,13 @@ float KP1 = 0.0015; // Constante proportionnelle pour le contrôle PID ()
 
 int etat = -1; // = 0 arrêt 1 = avance 2 = recule 3 = TourneDroit 4 = TourneGauche
 int etatPast = 0;
-float vitesse = 0.35;
+float vitesse = 0.25;
 int x = 0;			 // x = 0 initialisation et représente la coordonnée x de la case de départ
 int y = 0;			 // y = 0 initialisation et représente la coordonnée y de la case de départ
 int regardeFace = 0; // Regarde à : AVANT = 0, GAUCHE = -1, DERRIÈRE = 2 ou -2, DROITE = 1
 int last_move = 0;	 // est = 1 si x==0 et que le dernier movement est setorientation(1)
 int key_num;
+bool verification_ligne = true;
 
 
 enum MoveState {
@@ -37,7 +38,7 @@ int ligneGauche = 0;
 int ligneMilieu = 0;
 int ligneDroite = 0;
 int lastCheck = 0;
-int seuilSuiveurLigne = 175;
+int seuilSuiveurLigne = 100;
 int verification = 0;
 
 void AjusterVitesse(uint32_t difference, uint32_t droit, uint32_t gauche)
@@ -208,6 +209,12 @@ void ajusterdroite()
 		ligneGauche = analogRead(CaptLeft);
 		ligneMilieu = analogRead(CaptMid);
 		ligneDroite = analogRead(CaptRight);
+		Serial.print("Valeur du capteur de droite : ");
+		Serial.println(ligneDroite);
+		Serial.print("Valeur du capteur de gauche : ");
+		Serial.println(ligneGauche);
+		Serial.print("Valeur du capteur du milieu : ");
+		Serial.println(ligneMilieu);
 
 		MOTOR_SetSpeed(RIGHT, 0.75 * vitesse);
 		MOTOR_SetSpeed(LEFT, vitesse);
@@ -224,6 +231,12 @@ void ajustergauche()
 		ligneGauche = analogRead(CaptLeft);
 		ligneMilieu = analogRead(CaptMid);
 		ligneDroite = analogRead(CaptRight);
+		Serial.print("Valeur du capteur de droite : ");
+		Serial.println(ligneDroite);
+		Serial.print("Valeur du capteur de gauche : ");
+		Serial.println(ligneGauche);
+		Serial.print("Valeur du capteur du milieu : ");
+		Serial.println(ligneMilieu);
 
 		MOTOR_SetSpeed(RIGHT, vitesse);
 		MOTOR_SetSpeed(LEFT, 0.75 * vitesse);
@@ -294,67 +307,99 @@ void suivreLigne()
 //and makes the robot follow the line until the numbers of intersections have been reached
 // Pour que la fonction fonctionne, il faut que chaque intersection du parcour puisse déclencher les trois détecteurs de lignes (G, M et D)
 void suivreLigneIntersect(int num_intersect){
-	ligneGauche = analogRead(CaptLeft);
-	ligneMilieu = analogRead(CaptMid);
-	ligneDroite = analogRead(CaptRight);
 
 	int i = 0;
-	while (i < num_intersect) {
-		//if all is on
-		//if ligne milieu is on
-		int etat = 2 * (int)(ligneGauche > seuilSuiveurLigne) + (int)(ligneDroite > seuilSuiveurLigne);// conversion en nombre binaire, donc on fait *2
-		switch (etat) {
-			case 0:
-				avanceLent();
-				break;
-			case 1:
-				ajusterdroite();
-				break;
-			case 2:
-				ajustergauche();
-				break;
-			case 3:
-				if (ligneMilieu > seuilSuiveurLigne){
-					i++; // compteur
-					avanceLent();
-				}
-				else {
-					arret();
-			}
-			break;
+	while (i < num_intersect) 
+	{
+		ligneGauche = analogRead(CaptLeft);
+		ligneMilieu = analogRead(CaptMid);
+		ligneDroite = analogRead(CaptRight);
+		Serial.print("Valeur du capteur de droite : ");
+		Serial.println(ligneDroite);
+		Serial.print("Valeur du capteur de gauche : ");
+		Serial.println(ligneGauche);
+		Serial.print("Valeur du capteur du milieu : ");
+		Serial.println(ligneMilieu); 
+
+		int etat = (2 * (int)(ligneGauche > seuilSuiveurLigne)) + (int)(ligneDroite > seuilSuiveurLigne);// conversion en nombre binaire, donc on fait *2
+		if (etat == 0)
+		{
+			avanceLent();
 		}
+		if (etat == 1)
+		{
+			ajusterdroite();
+		}
+		if (etat == 2)
+		{
+			ajustergauche();
+		}
+		if (etat == 3)
+		{
+			if (ligneMilieu > seuilSuiveurLigne)
+			{
+				 // compteur
+				avanceLent();
+				i++;
+				delay(500);
+
+			}
+		}	
+			
 	}
-	arret();
+	
+	verification_ligne = false;
 }
 
+
 void logiqueMouvement(){
-	switch (move_state)
+	
+	if (move_state == 0)//stand by
+	{
+		arret();
+	}
+	
+	
+	if (move_state == 1) //CHECK IN
 	{
 	
-	case (0):
-	
-		break;
-	
-	
-	case (1):
-	
 		//make function to turn gauche (180 deg)
-		tourneGauche(3600);
+		//tourneGauche(3600);
 		//follow the line until it sees two intersections
-		suivreLigneIntersect(2);
+		while (verification_ligne)
+		{
+			suivreLigneIntersect(2);
+		}
+		verification_ligne = true;
+		arret();
+		avance(500);
+		tourneGauche(1800);
+		avance(500);
+		while (verification_ligne)
+		{
+			suivreLigneIntersect(1);
+		}
+
+
+		/*
 		if ( car_key ) { // If it has the car key
 			//make function to turn (90 deg left)
+			avance(500);
 			tourneGauche(1800);
+
 			suivreLigneIntersect(key_num); //note: key number is the same as the # of intersections
 			//turn 90 deg right
+			avance(500);
 			tourneDroit(1800);
 			// va sur point orange
 			suivreLigneIntersect(1);
 			//deposit car key (FONCTION POUR PINCE)
 			// tourne 180 deg
+
 			tourneGauche(3600);
 			suivreLigneIntersect(1);
 			//turn 90 deg left
+			avance(500);
 			tourneGauche(1800);
 			suivreLigneIntersect(2 * key_num);
 			
@@ -366,6 +411,7 @@ void logiqueMouvement(){
 		
 		}
 		//turn 90 left
+		avance(500);
 		tourneGauche(1800);
 		//va sur point orange
 		suivreLigneIntersect(1);
@@ -374,9 +420,11 @@ void logiqueMouvement(){
 		tourneGauche(3600);
 		suivreLigneIntersect(1);
 		//turn 90 righ
+		avance(500);
 		tourneDroit(1800);
 		suivreLigneIntersect(key_num);
 		//turn 90 left
+		avance(500);
 		tourneGauche(1800);
 		suivreLigneIntersect(2);
 		//AFFICHAGE LCD POUR MENU
@@ -385,10 +433,13 @@ void logiqueMouvement(){
 		car_key = false;
 		break;
 	
+	*/
+	} 
 
 		
 		
-	case (2):
+	if (move_state == 2)
+	{
 	
 		//make function to turn gauche (180 deg)
 		tourneGauche(3600);
@@ -431,12 +482,13 @@ void logiqueMouvement(){
 		//pour reset ( revenir en stand_by i.e. start)
 		move_state = 0;
 		car_key = false;
-		break;
 	
 
-	case (3):
-	
-//service clés de voiture seulement //are retour et recuperation
+	}
+
+	if (move_state == 3)
+	{
+		//service clés de voiture seulement retour et recuperation
 		
 		//make function to turn gauche (180 deg)
 		tourneGauche(3600);
@@ -463,11 +515,12 @@ void logiqueMouvement(){
 		//pour reset
 		move_state = 0;
 		car_key = false;
-		break;
+	
+	}
 	
 
-	case (4):
-	
+	if (move_state == 4)
+	{
 		//make function to turn gauche (180 deg)
 		tourneGauche(3600);
 		//follow the line until it sees two intersections
@@ -506,9 +559,11 @@ void logiqueMouvement(){
 		//pour reset
 		move_state = 0;
 		car_key = false;
-		break;
+	}
 	
-}
 
-};
+	
+
+
+}
 
