@@ -384,6 +384,7 @@ void logiqueMouvement(){
 		suivreLigneIntersect(2);
 		//arrete pour que le client prenne sa cle de chambre 
 		arret();
+		//besoin de input du LCD pour confirmer que le client a pris sa clé
 
 		if ( car_key ) { // If it has the car key
 			//demande au client de deposer ses cles de voiture 
@@ -392,7 +393,7 @@ void logiqueMouvement(){
 			suivreLigneIntersect(2);
 			avance(500);
 			tourneGauche(1800);
-			suivreLigneIntersect(key_num); //note: key number is the same as the # of intersections
+			suivreLigneIntersect(key_num); //key number is the same as the # of intersections
 			//turn 90 deg right
 			avance(500);
 			tourneDroit(1800);
@@ -412,7 +413,7 @@ void logiqueMouvement(){
 			suivreLigneIntersect(2);
 			arret();
 		}
-		//AFFICHAGE LCD POUR MENU
+		//AFFICHAGE LCD POUR MENU (bienvenue)
 		//pour reset
 		move_state = 0;
 		car_key = false;
@@ -424,7 +425,7 @@ void logiqueMouvement(){
 		
 	if (move_state == 2) //Checkout
 	{
-		if ( car_key ) {
+		if ( car_key ) { //check out avec recuperation de clés
 			//le robot va porter la cle de voiture sur l etagere
 			tourneGauche(3600);
 			suivreLigneIntersect(2);
@@ -514,8 +515,10 @@ void logiqueMouvement(){
 	}
 	
 
-	if (move_state == 4)
+	if (move_state == 4)//service livraison
 	{
+		//AJOUTER FONCTION RFID POUR VALIDER QUE CEST BIEN UN EMPLOYER AVANT 
+		//DAVOIR ACCÈS AU SERVICE LIVRAISON
 		//make function to turn gauche (180 deg)
 		tourneGauche(3600);
 		//follow the line until it sees two intersections
