@@ -362,31 +362,36 @@ void logiqueMouvement(){
 	
 	if (move_state == 1) //CHECK IN
 	{
-	
-		//make function to turn gauche (180 deg)
-		//tourneGauche(3600);
+	//make function to turn gauche (180 deg)
+		tourneGauche(3600);
 		//follow the line until it sees two intersections
-		while (verification_ligne)
-		{
-			suivreLigneIntersect(2);
-		}
-		verification_ligne = true;
-		arret();
+		suivreLigneIntersect(2);
+		avance(500);
+		tourneDroit(1800);
+		suivreLigneIntersect(key_num);
 		avance(500);
 		tourneGauche(1800);
+		suivreLigneIntersect(1);
+		//prend la cle sur etagere
+		recule(500);
+		tourneGauche(3600);
+		suivreLigneIntersect(1);
 		avance(500);
-		while (verification_ligne)
-		{
-			suivreLigneIntersect(1);
-		}
+		tourneDroit(1800);
+		suivreLigneIntersect(key_num);
+		avance(500);
+		tourneGauche(1800);
+		suivreLigneIntersect(2);
+		//arrete pour que le client prenne sa cle de chambre 
+		arret();
 
-
-		/*
 		if ( car_key ) { // If it has the car key
-			//make function to turn (90 deg left)
+			//demande au client de deposer ses cles de voiture 
+			//le robot va porter la cle de voiture sur l etagere
+			tourneGauche(3600);
+			suivreLigneIntersect(2);
 			avance(500);
 			tourneGauche(1800);
-
 			suivreLigneIntersect(key_num); //note: key number is the same as the # of intersections
 			//turn 90 deg right
 			avance(500);
@@ -394,96 +399,82 @@ void logiqueMouvement(){
 			// va sur point orange
 			suivreLigneIntersect(1);
 			//deposit car key (FONCTION POUR PINCE)
+			recule(500);
 			// tourne 180 deg
-
 			tourneGauche(3600);
 			suivreLigneIntersect(1);
 			//turn 90 deg left
 			avance(500);
 			tourneGauche(1800);
-			suivreLigneIntersect(2 * key_num);
-			
-		}
-		else {
-			//90 deg droite
-			tourneDroit(1800);
 			suivreLigneIntersect(key_num);
-		
+			avance(500);
+			tourneDroit(1800);
+			suivreLigneIntersect(2);
+			arret();
 		}
-		//turn 90 left
-		avance(500);
-		tourneGauche(1800);
-		//va sur point orange
-		suivreLigneIntersect(1);
-		//Prend clé voiture (FONCTION POUR PINCE)
-		// tourne 180 deg
-		tourneGauche(3600);
-		suivreLigneIntersect(1);
-		//turn 90 righ
-		avance(500);
-		tourneDroit(1800);
-		suivreLigneIntersect(key_num);
-		//turn 90 left
-		avance(500);
-		tourneGauche(1800);
-		suivreLigneIntersect(2);
 		//AFFICHAGE LCD POUR MENU
 		//pour reset
 		move_state = 0;
 		car_key = false;
-		break;
 	
-	*/
+	
 	} 
 
 		
 		
-	if (move_state == 2)
+	if (move_state == 2) //Checkout
 	{
-	
-		//make function to turn gauche (180 deg)
-		tourneGauche(3600);
-		//follow the line until it sees two intersections
-		suivreLigneIntersect(2);
-		//90 deg droite
-		tourneDroit(1800);
-		suivreLigneIntersect(key_num);
-		//turn 90 left
-		tourneGauche(1800);
-		//va sur point orange
-		suivreLigneIntersect(1);
-		//retour clé de chambre (FONCTION POUR PINCE)
-		// tourne 180 deg
-		tourneGauche(3600);
-		suivreLigneIntersect(1);
-		//turn 90 right
-		tourneDroit(1800);	
-		
-		if ( car_key ) { // If it has the car key
-			suivreLigneIntersect(2 * key_num);
+		if ( car_key ) {
+			//le robot va porter la cle de voiture sur l etagere
+			tourneGauche(3600);
+			suivreLigneIntersect(2);
+			avance(500);
+			tourneGauche(1800);
+			suivreLigneIntersect(key_num); //note: key number is the same as the # of intersections
+			//turn 90 deg right
+			avance(500);
 			tourneDroit(1800);
 			// va sur point orange
 			suivreLigneIntersect(1);
 			//deposit car key (FONCTION POUR PINCE)
+			recule(500);
 			// tourne 180 deg
 			tourneGauche(3600);
 			suivreLigneIntersect(1);
 			//turn 90 deg left
+			avance(500);
 			tourneGauche(1800);
 			suivreLigneIntersect(key_num);
+			avance(500);
 			tourneDroit(1800);
+			suivreLigneIntersect(2);
+			arret();
 		}
-		else {
-			suivreLigneIntersect(key_num);
-			tourneGauche(1800);
-		}
+		//demande au client de deposer sa cle de chambre 
+		//va porter la cle de chambre sur l etagere
+		//make function to turn gauche (180 deg)
+		tourneGauche(3600);
+		//follow the line until it sees two intersections
 		suivreLigneIntersect(2);
+		avance(500);
+		tourneDroit(1800);
+		suivreLigneIntersect(key_num);
+		avance(500);
+		tourneGauche(1800);
+		suivreLigneIntersect(1);
+		//prend la cle sur etagere
+		recule(500);
+		tourneGauche(3600);
+		suivreLigneIntersect(1);
+		suivreLigneIntersect(key_num);
+		avance(500);
+		tourneGauche(1800);
+		suivreLigneIntersect(2);
+		arret();
 		//AFFICHAGE LCD POUR MENU
 		//pour reset ( revenir en stand_by i.e. start)
 		move_state = 0;
 		car_key = false;
-	
-
 	}
 
 	if (move_state == 3)
@@ -494,9 +485,11 @@ void logiqueMouvement(){
 		tourneGauche(3600);
 		//follow the line until it sees two intersections
 		suivreLigneIntersect(2);
+		avance(500);
 		//make function to turn (90 deg left)
 		tourneGauche(1800);
 		suivreLigneIntersect(key_num); //note: key number is the same as the # of intersections
+		avance(500);
 		//turn 90 deg right
 		tourneDroit(1800);
 		// va sur point orange
@@ -505,10 +498,12 @@ void logiqueMouvement(){
 		// tourne 180 deg
 		tourneGauche(3600);
 		suivreLigneIntersect(1);
+		avance(500);
 		//turn 90 left
 		tourneGauche(1800);
 		//va sur point orange
 		suivreLigneIntersect(key_num);
+		avance(500);
 		tourneDroit(1800);
 		suivreLigneIntersect(2);
 		//AFFICHAGE LCD POUR MENU
