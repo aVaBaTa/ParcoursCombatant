@@ -10,7 +10,7 @@ float KP1 = 0.0015; // Constante proportionnelle pour le contrôle PID ()
 
 int etat = -1; // = 0 arrêt 1 = avance 2 = recule 3 = TourneDroit 4 = TourneGauche
 int etatPast = 0;
-float vitesse = 0.25;
+float vitesse = 0.35;
 int x = 0;			 // x = 0 initialisation et représente la coordonnée x de la case de départ
 int y = 0;			 // y = 0 initialisation et représente la coordonnée y de la case de départ
 int regardeFace = 0; // Regarde à : AVANT = 0, GAUCHE = -1, DERRIÈRE = 2 ou -2, DROITE = 1
@@ -38,7 +38,7 @@ int ligneGauche = 0;
 int ligneMilieu = 0;
 int ligneDroite = 0;
 int lastCheck = 0;
-int seuilSuiveurLigne = 100;
+int seuilSuiveurLigne = 300;
 int verification = 0;
 
 void AjusterVitesse(uint32_t difference, uint32_t droit, uint32_t gauche)
@@ -83,7 +83,6 @@ void beep(int count)
 		AX_BuzzerOFF();
 		delay(100);
 	}
-	delay(400);
 }
 // Pour RESET les encodeurs et les variables qui stockent les valeurs lues des encodeurs
 void resetEncodeurs()
@@ -169,13 +168,13 @@ void tourneGauche(int nombre_pulses)
 
 void tourneDroitInfini(float coefficient)
 {
-	resetEncodeurs();
+	//resetEncodeurs();
 	MOTOR_SetSpeed(RIGHT, coefficient * -0.5 * vitesse);
 	MOTOR_SetSpeed(LEFT, coefficient * 0.5 * vitesse);
 }
 void tourneGaucheInfini(float coefficient)
 {
-	resetEncodeurs();
+	//resetEncodeurs();
 	MOTOR_SetSpeed(RIGHT, coefficient * 0.5 * vitesse);
 	MOTOR_SetSpeed(LEFT, coefficient * -0.5 * vitesse);
 }
@@ -216,8 +215,8 @@ void ajusterdroite()
 		Serial.print("Valeur du capteur du milieu : ");
 		Serial.println(ligneMilieu);
 
-		MOTOR_SetSpeed(RIGHT, 0.75 * vitesse);
-		MOTOR_SetSpeed(LEFT, vitesse);
+		MOTOR_SetSpeed(RIGHT, 0.71 * vitesse);
+		MOTOR_SetSpeed(LEFT, 0.75*vitesse);
 		pulses_gauche = ENCODER_Read(LEFT);
 	}
 }
@@ -238,8 +237,8 @@ void ajustergauche()
 		Serial.print("Valeur du capteur du milieu : ");
 		Serial.println(ligneMilieu);
 
-		MOTOR_SetSpeed(RIGHT, vitesse);
-		MOTOR_SetSpeed(LEFT, 0.75 * vitesse);
+		MOTOR_SetSpeed(RIGHT, 0.75 * vitesse);
+		MOTOR_SetSpeed(LEFT, 0.67 * vitesse);
 		pulses_droit = ENCODER_Read(RIGHT);
 	}
 }
@@ -321,7 +320,7 @@ void suivreLigneIntersect(int num_intersect){
 		Serial.print("Valeur du capteur du milieu : ");
 		Serial.println(ligneMilieu); 
 
-		int etat = (2 * (int)(ligneGauche > seuilSuiveurLigne)) + (int)(ligneDroite > seuilSuiveurLigne);// conversion en nombre binaire, donc on fait *2
+		int etat = (2 * (int)(ligneGauche > seuilSuiveurLigne)) + (int)(ligneDroite > seuilSuiveurLigne);
 		if (etat == 0)
 		{
 			avanceLent();
@@ -339,13 +338,12 @@ void suivreLigneIntersect(int num_intersect){
 			if (ligneMilieu > seuilSuiveurLigne)
 			{
 				 // compteur
+				beep(1);
 				avanceLent();
 				i++;
-				delay(500);
 
 			}
-		}	
-			
+		}
 	}
 	
 	verification_ligne = false;
