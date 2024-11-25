@@ -1,5 +1,6 @@
 #include <LibRobus.h>
 #include <Arduino.h>
+#include <string.h>
 
 // ---------------------------- Contrôle Général du Mouvement ----------------------------
 //POUR PID 
@@ -38,7 +39,7 @@ int ligneGauche = 0;
 int ligneMilieu = 0;
 int ligneDroite = 0;
 int lastCheck = 0;
-int seuilSuiveurLigne = 300;
+int seuilSuiveurLigne = 270;
 int verification = 0;
 
 void AjusterVitesse(uint32_t difference, uint32_t droit, uint32_t gauche)
@@ -134,11 +135,27 @@ void avance(int nombre_pulses)
 void recule(int nmbr_pulses)
 {
 	resetEncodeurs();
-	while (pulses_gauche < nmbr_pulses) // 1800 pulses = 950ms représente le nombre de pulses avant que la fonction tourneDroit arrête
+	while (pulses_droit < 100)
 	{
 		MOTOR_SetSpeed(RIGHT, -0.5 * vitesse);
 		MOTOR_SetSpeed(LEFT, -0.5 * vitesse);
-		pulses_gauche = - (ENCODER_Read(LEFT));
+		pulses_droit = abs(ENCODER_Read(RIGHT));
+		delay(50);
+	}
+	resetEncodeurs();
+	while (pulses_droit < nmbr_pulses) 
+	{
+		MOTOR_SetSpeed(RIGHT, -vitesse);
+		MOTOR_SetSpeed(LEFT, -vitesse);
+		pulses_droit = abs(ENCODER_Read(RIGHT));
+		pulses_gauche = abs(ENCODER_Read(LEFT));
+	}
+	resetEncodeurs();
+	while (pulses_droit < 200)
+	{
+		MOTOR_SetSpeed(RIGHT, -0.5 * vitesse);
+		MOTOR_SetSpeed(LEFT, -0.5 * vitesse);
+		pulses_droit = abs(ENCODER_Read(RIGHT));
 	}
 	pause();
 };
@@ -146,7 +163,7 @@ void recule(int nmbr_pulses)
 void tourneDroit(int nombre_pulses)
 {
 	resetEncodeurs();
-	while (pulses_gauche < nombre_pulses) // 1800 pulses = 950ms représente le nombre de pulses avant que la fonction tourneDroit arrête
+	while (pulses_gauche < nombre_pulses) 
 	{
 		MOTOR_SetSpeed(RIGHT, -0.5 * vitesse);
 		MOTOR_SetSpeed(LEFT, 0.5 * vitesse);
@@ -157,7 +174,7 @@ void tourneDroit(int nombre_pulses)
 void tourneGauche(int nombre_pulses)
 {
 	resetEncodeurs();
-	while (pulses_droit < nombre_pulses) // 1800 pulses = 900ms représente le nombre de pulses avant que la fonction tourneGauche arrête
+	while (pulses_droit < nombre_pulses)
 	{
 		MOTOR_SetSpeed(RIGHT, 0.5 * vitesse);
 		MOTOR_SetSpeed(LEFT, -0.5 * vitesse);
@@ -168,13 +185,11 @@ void tourneGauche(int nombre_pulses)
 
 void tourneDroitInfini(float coefficient)
 {
-	//resetEncodeurs();
 	MOTOR_SetSpeed(RIGHT, coefficient * -0.5 * vitesse);
 	MOTOR_SetSpeed(LEFT, coefficient * 0.5 * vitesse);
 }
 void tourneGaucheInfini(float coefficient)
 {
-	//resetEncodeurs();
 	MOTOR_SetSpeed(RIGHT, coefficient * 0.5 * vitesse);
 	MOTOR_SetSpeed(LEFT, coefficient * -0.5 * vitesse);
 }
@@ -208,14 +223,14 @@ void ajusterdroite()
 		ligneGauche = analogRead(CaptLeft);
 		ligneMilieu = analogRead(CaptMid);
 		ligneDroite = analogRead(CaptRight);
-		Serial.print("Valeur du capteur de droite : ");
+		/*Serial.print("Valeur du capteur de droite : ");
 		Serial.println(ligneDroite);
 		Serial.print("Valeur du capteur de gauche : ");
 		Serial.println(ligneGauche);
 		Serial.print("Valeur du capteur du milieu : ");
-		Serial.println(ligneMilieu);
+		Serial.println(ligneMilieu);*/
 
-		MOTOR_SetSpeed(RIGHT, 0.71 * vitesse);
+		MOTOR_SetSpeed(RIGHT, 0.68 * vitesse);
 		MOTOR_SetSpeed(LEFT, 0.75*vitesse);
 		pulses_gauche = ENCODER_Read(LEFT);
 	}
@@ -230,12 +245,12 @@ void ajustergauche()
 		ligneGauche = analogRead(CaptLeft);
 		ligneMilieu = analogRead(CaptMid);
 		ligneDroite = analogRead(CaptRight);
-		Serial.print("Valeur du capteur de droite : ");
+		/*Serial.print("Valeur du capteur de droite : ");
 		Serial.println(ligneDroite);
 		Serial.print("Valeur du capteur de gauche : ");
 		Serial.println(ligneGauche);
 		Serial.print("Valeur du capteur du milieu : ");
-		Serial.println(ligneMilieu);
+		Serial.println(ligneMilieu);*/
 
 		MOTOR_SetSpeed(RIGHT, 0.75 * vitesse);
 		MOTOR_SetSpeed(LEFT, 0.67 * vitesse);
@@ -243,67 +258,8 @@ void ajustergauche()
 	}
 }
 
-void suivreLigne()
-{
-
-	ligneGauche = analogRead(CaptLeft);
-	ligneMilieu = analogRead(CaptMid);
-	ligneDroite = analogRead(CaptRight);
-	Serial.print("Valeur du capteur de droite : ");
-	Serial.println(ligneDroite);
-	Serial.print("Valeur du capteur de gauche : ");
-	Serial.println(ligneGauche);
-	Serial.print("Valeur du capteur du milieu : ");
-	Serial.println(ligneMilieu);
-	
-
-	//if ligne milieu is on
-	if ((ligneMilieu > seuilSuiveurLigne) && (ligneDroite <seuilSuiveurLigne) && (ligneGauche < seuilSuiveurLigne))
-	{
-		avanceLent(); //0
-	}
-
-	//if ligne droit is on
-	if ((ligneDroite > seuilSuiveurLigne) && (ligneMilieu < seuilSuiveurLigne) && (ligneGauche < seuilSuiveurLigne))
-	{
-		ajusterdroite(); //1
-	}
-
-	//if ligne gauche is on
-	if ((ligneGauche > seuilSuiveurLigne) && (ligneMilieu < seuilSuiveurLigne) && (ligneDroite < seuilSuiveurLigne))
-	{
-		ajustergauche(); //2
-	}
-
-	//if all is off
-	if ((ligneMilieu < seuilSuiveurLigne) && (ligneDroite < seuilSuiveurLigne) && (ligneGauche < seuilSuiveurLigne))
-	{
-		avanceLent(); //0
-	}
-
-	//if all is on
-	if ((ligneMilieu > seuilSuiveurLigne) && (ligneDroite > seuilSuiveurLigne) && (ligneGauche > seuilSuiveurLigne))
-	{
-		verification = 1;
-		avanceLent(); //3
-	}
-
-	//if ligne milieu and droite on
-	if ((ligneMilieu > seuilSuiveurLigne) && (ligneDroite > seuilSuiveurLigne) && (ligneGauche < seuilSuiveurLigne))
-	{
-		ajusterdroite(); //1
-	}
-
-	//if ligne milieu and gauche on
-	if ((ligneMilieu > seuilSuiveurLigne) && (ligneDroite < seuilSuiveurLigne) && (ligneGauche > seuilSuiveurLigne))
-	{
-		ajustergauche(); //2
-	}
-}
 
 
-//This function takes in a number of intersections it wants to pass ( through the parameter)
-//and makes the robot follow the line until the numbers of intersections have been reached
 // Pour que la fonction fonctionne, il faut que chaque intersection du parcour puisse déclencher les trois détecteurs de lignes (G, M et D)
 void suivreLigneIntersect(int num_intersect){
 
@@ -324,30 +280,107 @@ void suivreLigneIntersect(int num_intersect){
 		if (etat == 0)
 		{
 			avanceLent();
+			//Serial.println("avance lent") ;
 		}
 		if (etat == 1)
 		{
 			ajusterdroite();
+			//Serial.println("ajuste droite") ;
 		}
 		if (etat == 2)
 		{
 			ajustergauche();
+			//Serial.println("ajuste gauche") ;
 		}
 		if (etat == 3)
 		{
 			if (ligneMilieu > seuilSuiveurLigne)
 			{
-				 // compteur
-				beep(1);
-				avanceLent();
+				if (i != (num_intersect - 1))
+				{
+					avance(500);
+				}
 				i++;
+				
+				//Serial.println("les 3 détectent") ;
 
 			}
 		}
 	}
 	
-	verification_ligne = false;
 }
+
+// PREMIER PARAMÈTRE: 0: DROITE 1: GAUCHE
+// DEUXIÈME PARAMÈTRE: "avance": AVANCE AVANT DE TOURNER 	"recule": RECULE AVANT DE TOURNER 	OU LAISSER VIDE POUR QU'IL NE FASSE AUCUN DES DEUX
+// TROISIÈME PARAMÈTRE: 90: Fait un angle de 90 		180: Fait un angle de 180
+// Le robot tourne sur lui-même jusqu'à temps que le capteur du milieu du suiveur de ligne rencontre une ligne
+void Virage(String direction, String avance_recule, int angle_desire)
+{
+	resetEncodeurs();
+	// À DÉTERMINER NMBR DE PULSES : AVANCE UN PEU RENDU À L'INTERSECTION POUR BIEN SE RÉAJUSTER
+	if (avance_recule == "avance")
+	{
+		avance(200);
+	} 
+	else if (avance_recule == "recule")
+	{
+		recule(300);
+	}
+
+	if (angle_desire == 90)
+	{
+		// Pour éviter que le robot tourne et arrête à la mauvaise intersection (angle 90 ou 180)
+		while (pulses_gauche < 1500)
+		{
+			pulses_gauche = abs(ENCODER_Read(LEFT));
+			//Serial.println(pulses_gauche);
+			if (direction == "droite")
+			{
+				tourneDroitInfini(1);
+			}
+			else if (direction == "gauche")
+			{
+				tourneGaucheInfini(1);
+			}
+		}
+	}
+	else if (angle_desire == 180)
+	{
+		while (pulses_gauche < 3000)
+		{
+			pulses_gauche = abs(ENCODER_Read(LEFT));
+			//Serial.println(pulses_gauche);
+			if (direction == "droite")
+			{
+				tourneDroitInfini(1);
+			}
+			else if (direction == "gauche")
+			{
+				tourneGaucheInfini(1);
+			}
+		}
+	}
+	ligneMilieu = 0;
+	while (ligneMilieu < seuilSuiveurLigne)
+	{
+		ligneMilieu = analogRead(CaptMid);
+		if (direction == "droite")
+		{
+			tourneDroitInfini(1);
+		}
+		else if (direction == "gauche")
+		{
+			tourneGaucheInfini(1);
+		}
+	}
+	// À DÉTERMINER : SI LE ROBOT EST DROIT À 100% SUR LA LIGNE AVANT DE TOURNER ET QU'IL N'Y A PAS DE DELAY IL VA ARRETER
+	// AVEC UN PETIT ANGLE
+	delay(60);
+	// AVANCE POUR ETRE SUR QUE LE SUIVEUR DE LIGNE NE DÉTECTE PAS LE CARRÉ QUAND IL RÉEXÉCUTE UNE AUTRE FONCTION
+	avance(200);
+	pause();
+}
+
 
 
 void logiqueMouvement(){
@@ -360,54 +393,48 @@ void logiqueMouvement(){
 	
 	if (move_state == 1) //CHECK IN
 	{
-	//make function to turn gauche (180 deg)
-		tourneGauche(3600);
-		//follow the line until it sees two intersections
+
+		Virage("gauche", "", 180);
 		suivreLigneIntersect(2);
-		avance(500);
-		tourneDroit(1800);
+		Virage("droite", "avance", 90);
 		suivreLigneIntersect(key_num);
-		avance(500);
-		tourneGauche(1800);
+		Virage("gauche", "avance", 90);
 		suivreLigneIntersect(1);
+
+
 		//prend la cle sur etagere
-		recule(500);
-		tourneGauche(3600);
+
+
+		Virage("gauche", "recule", 180);
 		suivreLigneIntersect(1);
-		avance(500);
-		tourneDroit(1800);
+		Virage("droite", "avance", 90);
 		suivreLigneIntersect(key_num);
-		avance(500);
-		tourneGauche(1800);
+		Virage("gauche", "avance", 90);
 		suivreLigneIntersect(2);
 		//arrete pour que le client prenne sa cle de chambre 
 		arret();
-		//besoin de input du LCD pour confirmer que le client a pris sa clé
 
-		if ( car_key ) { // If it has the car key
+		//besoin de input du LCD pour confirmer que le client a pris sa clé
+		// Simon : Faire la fonction du LCD ici
+
+		if ( car_key ) { // Si le client possède une clé
 			//demande au client de deposer ses cles de voiture 
 			//le robot va porter la cle de voiture sur l etagere
-			tourneGauche(3600);
+			Virage("gauche", "", 180);
 			suivreLigneIntersect(2);
-			avance(500);
-			tourneGauche(1800);
-			suivreLigneIntersect(key_num); //key number is the same as the # of intersections
+			Virage("gauche", "avance", 90);
+			suivreLigneIntersect(key_num); 
 			//turn 90 deg right
-			avance(500);
-			tourneDroit(1800);
+			Virage("droite", "avance", 90);
 			// va sur point orange
 			suivreLigneIntersect(1);
 			//deposit car key (FONCTION POUR PINCE)
-			recule(500);
-			// tourne 180 deg
-			tourneGauche(3600);
+			Virage("gauche", "recule", 180);
 			suivreLigneIntersect(1);
 			//turn 90 deg left
-			avance(500);
-			tourneGauche(1800);
+			Virage("gauche", "avance", 90);
 			suivreLigneIntersect(key_num);
-			avance(500);
-			tourneDroit(1800);
+			Virage("droite", "avance", 90);
 			suivreLigneIntersect(2);
 			arret();
 		}
@@ -415,8 +442,6 @@ void logiqueMouvement(){
 		//pour reset
 		move_state = 0;
 		car_key = false;
-	
-	
 	} 
 
 		
@@ -425,49 +450,47 @@ void logiqueMouvement(){
 	{
 		if ( car_key ) { //check out avec recuperation de clés
 			//le robot va porter la cle de voiture sur l etagere
-			tourneGauche(3600);
+			Virage("gauche", "", 180);
 			suivreLigneIntersect(2);
-			avance(500);
-			tourneGauche(1800);
+			Virage("gauche", "avance", 90);
 			suivreLigneIntersect(key_num); //note: key number is the same as the # of intersections
 			//turn 90 deg right
-			avance(500);
-			tourneDroit(1800);
+			Virage("droite", "avance", 90);
 			// va sur point orange
 			suivreLigneIntersect(1);
+
 			//deposit car key (FONCTION POUR PINCE)
-			recule(500);
-			// tourne 180 deg
-			tourneGauche(3600);
+
+			Virage("gauche", "recule", 180);
 			suivreLigneIntersect(1);
 			//turn 90 deg left
-			avance(500);
-			tourneGauche(1800);
+			Virage("gauche", "avance", 90);
 			suivreLigneIntersect(key_num);
-			avance(500);
-			tourneDroit(1800);
+			Virage("droite", "avance", 90);
 			suivreLigneIntersect(2);
 			arret();
 		}
+
+		// À AJOUTER (Simon)
 		//demande au client de deposer sa cle de chambre 
 		//va porter la cle de chambre sur l etagere
-		//make function to turn gauche (180 deg)
-		tourneGauche(3600);
+		
+
+		Virage("gauche", "", 180);
 		//follow the line until it sees two intersections
 		suivreLigneIntersect(2);
-		avance(500);
-		tourneDroit(1800);
+		Virage("droite", "avance", 90);
 		suivreLigneIntersect(key_num);
-		avance(500);
-		tourneGauche(1800);
+		Virage("gauche", "avance", 90);
 		suivreLigneIntersect(1);
-		//prend la cle sur etagere
-		recule(500);
-		tourneGauche(3600);
+
+		// dépose sa clé sur l'étagère (pince)
+
+		Virage("gauche", "recule", 180);
 		suivreLigneIntersect(1);
+		Virage("droite", "avance", 90);
 		suivreLigneIntersect(key_num);
-		avance(500);
-		tourneGauche(1800);
+		Virage("gauche", "avance", 90);
 		suivreLigneIntersect(2);
 		arret();
 		//AFFICHAGE LCD POUR MENU
@@ -476,34 +499,28 @@ void logiqueMouvement(){
 		car_key = false;
 	}
 
-	if (move_state == 3)
+	if (move_state == 3) //service clés de voiture seulement retour et recuperation
 	{
-		//service clés de voiture seulement retour et recuperation
+		
 		
 		//make function to turn gauche (180 deg)
-		tourneGauche(3600);
+		Virage("gauche", "", 180);
 		//follow the line until it sees two intersections
 		suivreLigneIntersect(2);
-		avance(500);
-		//make function to turn (90 deg left)
-		tourneGauche(1800);
+		Virage("gauche", "avance", 90);
 		suivreLigneIntersect(key_num); //note: key number is the same as the # of intersections
-		avance(500);
-		//turn 90 deg right
-		tourneDroit(1800);
+		Virage("droite", "avance", 90);
 		// va sur point orange
 		suivreLigneIntersect(1);
+
 		//deposit car key (FONCTION POUR PINCE)
-		// tourne 180 deg
-		tourneGauche(3600);
+
+		Virage("gauche", "recule", 180);
 		suivreLigneIntersect(1);
-		avance(500);
-		//turn 90 left
-		tourneGauche(1800);
+		Virage("gauche", "avance", 90);
 		//va sur point orange
 		suivreLigneIntersect(key_num);
-		avance(500);
-		tourneDroit(1800);
+		Virage("droite", "avance", 90);
 		suivreLigneIntersect(2);
 		//AFFICHAGE LCD POUR MENU
 		//pour reset
@@ -513,45 +530,46 @@ void logiqueMouvement(){
 	}
 	
 
-	if (move_state == 4)//service livraison
+	if (move_state == 4) //service livraison (colis)
 	{
 		//AJOUTER FONCTION RFID POUR VALIDER QUE CEST BIEN UN EMPLOYER AVANT 
 		//DAVOIR ACCÈS AU SERVICE LIVRAISON
 		//make function to turn gauche (180 deg)
-		tourneGauche(3600);
+		Virage("gauche", "", 180);
 		//follow the line until it sees two intersections
 		suivreLigneIntersect(1);
-		tourneGauche(1800);
+		Virage("gauche", "avance", 90);
 		suivreLigneIntersect(1);
-		tourneGauche(1800);
+		Virage("gauche", "avance", 90);
 		suivreLigneIntersect(1);
-		tourneGauche(3600);
+		Virage("gauche", "avance", 180);
 		suivreLigneIntersect(1);
-		tourneDroit(1800);
+		Virage("droite", "avance", 90);
 		suivreLigneIntersect(2);
 			if ( key_num == 1){
 			suivreLigneIntersect(1);
 			//drop colis
-			recule(1000); //À REVOIR AVEC TEST (besoin de reculer pour dposer colis)
+			recule(1000); //À REVOIR AVEC TEST (besoin de reculer pour dposer colis) (peut-être utiliser même fonction de la pince pour déposer boites de clés)
 			//make function to turn gauche (180 deg)
-			tourneGauche(3600);
+			Virage("gauche", "recule", 180);
 			suivreLigneIntersect(2);
 			}
 			else{
-			tourneDroit(1800);
+			Virage("droite", "avance", 90);
 			suivreLigneIntersect(key_num -1);
-			tourneGauche(1800);
+			Virage("gauche", "avance", 90);
 			suivreLigneIntersect(1);
 			recule(1000); //À REVOIR AVEC TEST (besoin de reculer pour dposer colis)
-			tourneGauche(3600);
+			Virage("gauche", "avance", 180);
 			suivreLigneIntersect(1);
-			tourneDroit(1800);
+			Virage("droite", "avance", 90);
 			suivreLigneIntersect(key_num -1);
-			tourneGauche(1800);
+			Virage("gauche", "avance", 90);
 			suivreLigneIntersect(1);
 			}
-		tourneGauche(1800);
+		Virage("gauche", "avance", 90);
 		suivreLigneIntersect(1);
+		//Affichage LCD pour menu
 		//pour reset
 		move_state = 0;
 		car_key = false;

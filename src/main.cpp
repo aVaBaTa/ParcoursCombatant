@@ -12,26 +12,18 @@ void loop()
 		move_state = 1;
 		car_key = 1;
 		key_num = 1;
+		suivreLigneIntersect(2);
+		Virage("droite", "avance", 180);
 		suivreLigneIntersect(1);
-		arret();
-		delay(200);
-		avance(450);
+		Virage("gauche", "avance", 90);
+		suivreLigneIntersect(1);
+		Virage("droite", "avance", 180);
+		suivreLigneIntersect(1);
+		Virage("droite", "avance", 90);
+		suivreLigneIntersect(1);
+		Virage("gauche", "avance", 180);
+		suivreLigneIntersect(2);
 
-
-		resetEncodeurs();
-		while (pulses_gauche < 1500)
-		{
-			pulses_gauche = ENCODER_Read(LEFT);
-			Serial.println(pulses_gauche);
-			tourneGaucheInfini(1);
-		}
-		ligneMilieu = 0;
-		while (ligneMilieu < seuilSuiveurLigne)
-		{
-			ligneMilieu = analogRead(CaptMid);
-			Serial.println(ligneMilieu);
-			tourneGaucheInfini(1);
-		}
 		arret();
 
 		delay(10000);
