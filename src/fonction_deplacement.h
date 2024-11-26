@@ -3,7 +3,7 @@
 #include <string.h>
 
 // ---------------------------- Contrôle Général du Mouvement ----------------------------
-//POUR PID 
+//POUR PID
 int32_t difference_moteurs = 0;
 uint32_t pulses_droit = 0; // Compteur de pulses pour moteur droit
 uint32_t pulses_gauche = 0;
@@ -143,7 +143,7 @@ void recule(int nmbr_pulses)
 		delay(50);
 	}
 	resetEncodeurs();
-	while (pulses_droit < nmbr_pulses) 
+	while (pulses_droit < nmbr_pulses)
 	{
 		MOTOR_SetSpeed(RIGHT, -vitesse);
 		MOTOR_SetSpeed(LEFT, -vitesse);
@@ -163,7 +163,7 @@ void recule(int nmbr_pulses)
 void tourneDroit(int nombre_pulses)
 {
 	resetEncodeurs();
-	while (pulses_gauche < nombre_pulses) 
+	while (pulses_gauche < nombre_pulses)
 	{
 		MOTOR_SetSpeed(RIGHT, -0.5 * vitesse);
 		MOTOR_SetSpeed(LEFT, 0.5 * vitesse);
@@ -264,7 +264,7 @@ void ajustergauche()
 void suivreLigneIntersect(int num_intersect){
 
 	int i = 0;
-	while (i < num_intersect) 
+	while (i < num_intersect)
 	{
 		ligneGauche = analogRead(CaptLeft);
 		ligneMilieu = analogRead(CaptMid);
@@ -274,7 +274,7 @@ void suivreLigneIntersect(int num_intersect){
 		Serial.print("Valeur du capteur de gauche : ");
 		Serial.println(ligneGauche);
 		Serial.print("Valeur du capteur du milieu : ");
-		Serial.println(ligneMilieu); 
+		Serial.println(ligneMilieu);
 
 		int etat = (2 * (int)(ligneGauche > seuilSuiveurLigne)) + (int)(ligneDroite > seuilSuiveurLigne);
 		if (etat == 0)
@@ -301,13 +301,13 @@ void suivreLigneIntersect(int num_intersect){
 					avance(500);
 				}
 				i++;
-				
+
 				//Serial.println("les 3 détectent") ;
 
 			}
 		}
 	}
-	
+
 }
 
 // PREMIER PARAMÈTRE: 0: DROITE 1: GAUCHE
@@ -321,7 +321,7 @@ void Virage(String direction, String avance_recule, int angle_desire)
 	if (avance_recule == "avance")
 	{
 		avance(200);
-	} 
+	}
 	else if (avance_recule == "recule")
 	{
 		recule(300);
@@ -384,13 +384,13 @@ void Virage(String direction, String avance_recule, int angle_desire)
 
 
 void logiqueMouvement(){
-	
+
 	if (move_state == 0)//stand by
 	{
 		arret();
 	}
-	
-	
+
+
 	if (move_state == 1) //CHECK IN
 	{
 
@@ -411,19 +411,19 @@ void logiqueMouvement(){
 		suivreLigneIntersect(key_num);
 		Virage("gauche", "avance", 90);
 		suivreLigneIntersect(2);
-		//arrete pour que le client prenne sa cle de chambre 
+		//arrete pour que le client prenne sa cle de chambre
 		arret();
 
 		//besoin de input du LCD pour confirmer que le client a pris sa clé
 		// Simon : Faire la fonction du LCD ici
 
 		if ( car_key ) { // Si le client possède une clé
-			//demande au client de deposer ses cles de voiture 
+			//demande au client de deposer ses cles de voiture
 			//le robot va porter la cle de voiture sur l etagere
 			Virage("gauche", "", 180);
 			suivreLigneIntersect(2);
 			Virage("gauche", "avance", 90);
-			suivreLigneIntersect(key_num); 
+			suivreLigneIntersect(key_num);
 			//turn 90 deg right
 			Virage("droite", "avance", 90);
 			// va sur point orange
@@ -442,10 +442,7 @@ void logiqueMouvement(){
 		//pour reset
 		move_state = 0;
 		car_key = false;
-	} 
-
-		
-		
+	}
 	if (move_state == 2) //Checkout
 	{
 		if ( car_key ) { //check out avec recuperation de clés
@@ -472,9 +469,9 @@ void logiqueMouvement(){
 		}
 
 		// À AJOUTER (Simon)
-		//demande au client de deposer sa cle de chambre 
+		//demande au client de deposer sa cle de chambre
 		//va porter la cle de chambre sur l etagere
-		
+
 
 		Virage("gauche", "", 180);
 		//follow the line until it sees two intersections
@@ -498,11 +495,10 @@ void logiqueMouvement(){
 		move_state = 0;
 		car_key = false;
 	}
-
 	if (move_state == 3) //service clés de voiture seulement retour et recuperation
 	{
-		
-		
+
+
 		//make function to turn gauche (180 deg)
 		Virage("gauche", "", 180);
 		//follow the line until it sees two intersections
@@ -526,13 +522,11 @@ void logiqueMouvement(){
 		//pour reset
 		move_state = 0;
 		car_key = false;
-	
-	}
-	
 
+	}
 	if (move_state == 4) //service livraison (colis)
 	{
-		//AJOUTER FONCTION RFID POUR VALIDER QUE CEST BIEN UN EMPLOYER AVANT 
+		//AJOUTER FONCTION RFID POUR VALIDER QUE CEST BIEN UN EMPLOYER AVANT
 		//DAVOIR ACCÈS AU SERVICE LIVRAISON
 		//make function to turn gauche (180 deg)
 		Virage("gauche", "", 180);
@@ -574,10 +568,6 @@ void logiqueMouvement(){
 		move_state = 0;
 		car_key = false;
 	}
-	
-
-	
-
 
 }
 
