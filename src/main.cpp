@@ -27,7 +27,8 @@ int ChangeState = 0;
 
 
 
-
+int test;
+int isTesting = true;
 
 
 
@@ -36,19 +37,19 @@ int ChangeState = 0;
 
 void setup()
 {
-    
+
     Serial.begin(9600);
     // Setup the LCD
     myGLCD.InitLCD();
 
   pinMode (LED, OUTPUT);
   // Start the I2C Bus as Slave on address 9
-  Wire.begin(9); 
+  Wire.begin(9);
   // Attach a function to trigger when something is received.
   Wire.onReceive(receiveEvent);
-    
+
 }
-int test = 0;
+
 void loop()
 {
 
@@ -57,14 +58,26 @@ void loop()
     int x, x2;
     int y, y2;
     int r;
-	test++;
-	
-  
+
+
+	if (isTesting == true){
+		test++;
+		if( test > 21) {
+			test = 0;
+		}
+		DisplayState = test;
+
+		delay(5000);
+	}
+
+
+
+
     if (Input > 0){
       ChangeState = 1;
       DisplayState = Input;
 
-	  
+
       Input = 0;
     }
 	/*if (Input == 10){
@@ -96,7 +109,7 @@ void loop()
 
     // Ecran d option
     if (DisplayState == 1)
-    {   
+    {
         myGLCD.fillScreen(TFT_WHITE);
         myGLCD.setColor(0, 0, 255);
         myGLCD.setBackColor(255, 255, 255);
@@ -105,18 +118,14 @@ void loop()
         myGLCD.setTextSize(2);
 		// Va a DisplayState == 2
         myGLCD.print("		Option 1 -> Reserver une chambre", LEFT, 100);
-		// Va a DisplayState == 6
+		// Va a DisplayState ==
         myGLCD.print("		Option 2 -> Recuperer ses clees", LEFT, 120);
-		// Va a DisplayState == 7
+		// Va a DisplayState ==
         myGLCD.print("		Option 3 -> Livraison de colis", LEFT, 140);
         DisplayState = -1;
     }
 
-
-
-
-    
-    // Ecran Pour Reserver une chambre
+	// Réserver la chambre --------- Detection RFID
     if (DisplayState == 2)
     {
         myGLCD.fillScreen(TFT_WHITE);
@@ -124,65 +133,71 @@ void loop()
         myGLCD.setBackColor(255, 255, 255);
         myGLCD.setTextSize(3);
         myGLCD.print("* Reserver une chambre *", CENTER, 25);
-		myGLCD.setTextSize(2);
-        myGLCD.print("*Voulez Deposer vos clees de voitures?*", CENTER, 45);
-        myGLCD.setTextSize(2);
-		// ** deposer les clees
-        myGLCD.print("		Option 1 -> Oui", LEFT, 100);
-
-
-		// Va a DisplayState == 4
-        myGLCD.print("		Option 2 -> Non", LEFT, 120);
+		 myGLCD.setTextSize(2);
+        myGLCD.print("* Veuillez scanner votre *", CENTER, 50);
+		myGLCD.print(" carte de paiement ", CENTER, 75);
         DisplayState = -1;
     }
 
-
-
-
-    /// Verrifier l' se qui est ecrit si c est pertinent
-	// MODIFIER
-     if (DisplayState == 3)
+	// VOICI VOTRE CLEE DE CHAMBRE
+    if (DisplayState == 3)
     {
         myGLCD.fillScreen(TFT_WHITE);
         myGLCD.setColor(0, 0, 255);
         myGLCD.setBackColor(255, 255, 255);
         myGLCD.setTextSize(3);
-        myGLCD.print("*Deposer vos clees de voitures*", CENTER, 25);
-		myGLCD.print("*APPUYER SUR LE BOUTON VERT*", CENTER, 50);
+        myGLCD.print("* Voici votre clee *", CENTER, 25);
+		myGLCD.print(" de chambre ", CENTER, 50);
+		myGLCD.setTextSize(2);
+        myGLCD.print("* Appuyer sur le bouton vert *", CENTER, 75);
+		myGLCD.print(" apres avoir recuperer votre clee ", CENTER, 90);
+		// garde la boite
         DisplayState = -1;
     }
 
-
-
-
-
-
-
-
-
-    // Réserver la chambre
+	// RESERVER CHAMBRE -- DEPOSER LES CLEES DE VOITURES
     if (DisplayState == 4)
     {
-        myGLCD.fillScreen(TFT_WHITE);
+     myGLCD.fillScreen(TFT_WHITE);
         myGLCD.setColor(0, 0, 255);
         myGLCD.setBackColor(255, 255, 255);
         myGLCD.setTextSize(3);
         myGLCD.print("* Reserver une chambre *", CENTER, 25);
-        //myGLCD.print("* Voulez Deposer vos clees de voitures? *", CENTER, 25);
+		myGLCD.setTextSize(2);
+        myGLCD.print("*Voulez Deposer vos clees de voitures?*", CENTER, 45);
         myGLCD.setTextSize(2);
-		// Va a Merci
-        myGLCD.print("		Option 1 -> Chambre 1", LEFT, 100);
-        myGLCD.print("		Option 2 -> Chambre 2", LEFT, 120);
-		myGLCD.print("		Option 3 -> Chambre 3", LEFT, 140);
-		myGLCD.print("		Option 4 -> Chambre 4", LEFT, 160);
+		// VA A 5
+        myGLCD.print("		Option 1 -> Oui", LEFT, 100);
+		// VA A MERCI BONNE JOURNEE
+        myGLCD.print("		Option 2 -> Non", LEFT, 120);
+		// va reporter la boite a sa place d 'origine
+        DisplayState = -1;
+    }
+
+	// RESERVER CHAMBRE -- DEPOSER LES CLEES DE VOITURES -- OUI
+    if (DisplayState == 5)
+    {
+        myGLCD.fillScreen(TFT_WHITE);
+        myGLCD.setColor(0, 0, 255);
+        myGLCD.setBackColor(255, 255, 255);
+        myGLCD.setTextSize(3);
+        myGLCD.print("* Deposer vos clees *", CENTER, 25);
+		myGLCD.print(" de voitures ", CENTER, 50);
+		myGLCD.setTextSize(2);
+		myGLCD.print("* Appuyer sur le bouton vert *", CENTER, 75);
+		// va porter la boite a l emplacement pour les clees
         DisplayState = -1;
     }
 
 
+
+
+
+
+
+
 	// si la clé n a pas été selectionné ca va chercher la clé de chambre
 	// si la clé a été selectionné ca va porter la clé et va chercher la clé de chambre
-
-
 	// voici votre clé de chambre
 	if (DisplayState == 5)
     {
@@ -192,9 +207,17 @@ void loop()
         myGLCD.setTextSize(3);
         myGLCD.print("* Voici votre cle *", CENTER, 100);
 		myGLCD.print("  de chambre  ", CENTER, 120);
-    
+
         DisplayState = -1;
     }
+
+
+
+
+
+
+
+
 
 
 	// Récupérer ses clés
@@ -214,7 +237,7 @@ void loop()
     }
 
 
-	
+
 
 	// livraison de colis
 	if (DisplayState == 7)
@@ -232,16 +255,41 @@ void loop()
 		myGLCD.print("		Option 4 -> Chambre 4", LEFT, 160);
         DisplayState = -1;
     }
-    
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 	// Merci
-	if (DisplayState == 8)
+	if (DisplayState == 20)
     {
         myGLCD.fillScreen(TFT_WHITE);
         myGLCD.setColor(0, 0, 255);
         myGLCD.setBackColor(255, 255, 255);
-        myGLCD.setTextSize(5);
+        myGLCD.setTextSize(3);
         myGLCD.print("* Merci Bonne Journee *", CENTER, 100);
-      
+
+        DisplayState = -1;
+    }
+	// merci veuiller patienter
+	if (DisplayState == 21)
+    {
+        myGLCD.fillScreen(TFT_WHITE);
+        myGLCD.setColor(0, 0, 255);
+        myGLCD.setBackColor(255, 255, 255);
+        myGLCD.setTextSize(3);
+        myGLCD.print("* Merci veuillez patienter *", CENTER, 100);
+
         DisplayState = -1;
     }
 
@@ -249,5 +297,5 @@ void loop()
 
 
 
-  
+
 }
