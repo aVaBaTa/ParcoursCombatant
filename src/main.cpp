@@ -10,7 +10,7 @@ char id_tag[20];
 char crecu;
 String id_carte = "";
 
-void identificationCarte(String IDCard)
+int identificationCarte(String IDCard)
 {
 
 	int numCarte = 0, numChambre = 0;
@@ -67,10 +67,11 @@ void identificationCarte(String IDCard)
 	}
 
 	// Son au contact
-
 	AX_BuzzerON();
 	delay(500);
 	AX_BuzzerOFF();
+
+	return numCarte;
 }
 
 void setup()
@@ -85,6 +86,7 @@ void setup()
 
 void loop()
 {
+	Serial.print(screen_display);
 
 	// event
 	// move_state = 0;
@@ -183,7 +185,6 @@ void loop()
 	// MENU DE SELECTION
 	else if (screen_display == 1)
 	{
-		// Serial.print("Salut");
 		if (ROBUS_IsBumper(2)) // CHANGER SÉLECTION
 		{
 			if (bouton_selection < 3)
@@ -203,14 +204,14 @@ void loop()
 			{
 				screen_output = 2;
 			}
-			if (bouton_selection == 2)
+			/*if (bouton_selection == 2)
 			{
 				screen_output = 6;
 			}
 			if (bouton_selection == 3)
 			{
 				screen_output = 7;
-			}
+			}*/
 
 			// remet bouton a 1 lorsque confimer
 			bouton_selection = 1;
@@ -223,50 +224,113 @@ void loop()
 			delay(250);
 		}
 	}
-	// DEMANDE SI DEPOSER LES CLEES ----> Inverser avec Les chambres
+	// SCANNE LA CARTE RFID --- > MERCI VEUILLEZ PATIENTER ---> DEPLACEMENT ---> VOICI VOTRE CLEE DE CHAMBRE
 	else if (screen_display == 2)
 	{
-		if (ROBUS_IsBumper(2)) // CHANGER SÉLECTION
+		Serial2.begin(9600);
+		while (screen_display == 2/* modifier pour variable de scanne*/)
 		{
-			if (bouton_selection < 2)
+			Serial.print("Screen : Paiment");
+			if (Serial2.available() > 0)
 			{
-				bouton_selection += 1;
+				Serial.print(Serial2.available());
+				crecu = Serial2.read(); // lit le ID-12
+
+				switch (crecu)
+				{
+				case 0x02:
+					// START OF TRANSMIT
+					i = 0;
+					incoming = 1;
+					break;
+				case 0x03:
+					// END OF TRANSMIT
+					incoming = 0;
+					id_carte = "";
+					for (i = 0; i < 10; i++)
+					{
+						id_carte = id_carte + String(id_tag[i]);
+					}
+					key_num = identificationCarte(id_carte);
+					break;
+				default:
+					if (incoming)
+						id_tag[i++] = crecu;
+					break;
+				}
 			}
-			else
+
+			if ( key_num != 0)
 			{
+				screen_output = 21;
+				// remet bouton a 1 lorsque confimer
 				bouton_selection = 1;
+				// ENVOYER L'ACTION AU LCD
+				Wire.beginTransmission(9);
+				Wire.write(screen_output);
+				Wire.endTransmission();
+				screen_display = screen_output;
+				delay(250);
 			}
-			delay(250);
-		}
-		if (ROBUS_IsBumper(3)) // CONFIRMER SÉLECTION
-		{
 
-			// Si Oui || == 1 Mets en memoire deposer les clees
-			if (bouton_selection == 1)
+			/*
+			if (ROBUS_IsBumper(2)) // CHANGER SÉLECTION
 			{
-				// Mettre la Variable des clées a oui
-				screen_output = 3;
+				if (bouton_selection < 2)
+				{
+					bouton_selection += 1;
+				}
+				else
+				{
+					bouton_selection = 1;
+				}
+				delay(250);
 			}
-			if (bouton_selection == 2)
+			if (ROBUS_IsBumper(3)) // CONFIRMER SÉLECTION
 			{
-				screen_output = 4;
-			}
 
-			// remet bouton a 1 lorsque confimer
-			bouton_selection = 1;
+				// Si Oui || == 1 Mets en memoire deposer les clees
+				if (bouton_selection == 1)
+				{
+					// Mettre la Variable des clées a oui
+					screen_output = 3;
+				}
+				if (bouton_selection == 2)
+				{
+					screen_output = 4;
+				}
 
-			// ENVOYER L'ACTION AU LCD
-			Wire.beginTransmission(9);
-			Wire.write(screen_output);
-			Wire.endTransmission();
-			screen_display = screen_output;
-			delay(250);
+				// remet bouton a 1 lorsque confimer
+				bouton_selection = 1;
+
+				// ENVOYER L'ACTION AU LCD
+				Wire.beginTransmission(9);
+				Wire.write(screen_output);
+				Wire.endTransmission();
+				screen_display = screen_output;
+				delay(250);*/
 		}
+		Serial2.end();
+		//condition logique de deplacement
+
+		//DEPLACEMENT
+
+
+
+		// a la fin de deplacement
+		screen_output = 3;
+		bouton_selection = 1;
+		Wire.beginTransmission(9);
+		Wire.write(screen_output);
+		Wire.endTransmission();
+		screen_display = screen_output;
+		delay(250);
 	}
-	// Screen Deposer les clees Pour Reserver la Chambre
+
+
+	// VOICI VOTRE CLEE DE CHAMBRE --> 4 DEPOSER LES CLEES DE CHAMBRES
 	else if (screen_display == 3)
 	{
-
 		if (ROBUS_IsBumper(3)) // CONFIRMER SÉLECTION
 		{
 
@@ -284,12 +348,12 @@ void loop()
 			delay(250);
 		}
 	}
-	// RESERVER LA CHAMBRE
+	// RESERVER CHAMBRE -- DEPOSER LES CLEES DE VOITURES
 	else if (screen_display == 4)
 	{
 		if (ROBUS_IsBumper(2)) // CHANGER SÉLECTION
 		{
-			if (bouton_selection < 3)
+			if (bouton_selection < 2)
 			{
 				bouton_selection += 1;
 			}
@@ -300,41 +364,47 @@ void loop()
 			delay(250);
 		}
 		if (ROBUS_IsBumper(3)) // CONFIRMER SÉLECTION
-		{
+		{	//OUI
 			if (bouton_selection == 1)
 			{
 				// METTRE LE CODE POUR ALLER A LA CHAMBRE 1
+				screen_output = 5;
 			}
+			//NON
 			if (bouton_selection == 2)
 			{
-				// METTRE LE CODE POUR ALLER A LA CHAMBRE 2
+				screen_output = 20;
+				// va porter la boite a sa place d origine
 			}
-			if (bouton_selection == 3)
-			{
-				// METTRE LE CODE POUR ALLER A LA CHAMBRE 3
-			}
-			if (bouton_selection == 4)
-			{
-				// a enlever
-			}
+
 
 			// remet bouton a 1 lorsque confimer
 			bouton_selection = 1;
 
-			// 			A CHANGER
-			// Merci
-			screen_output = -2;
+
+
 
 			// ENVOYER L'ACTION AU LCD
 			Wire.beginTransmission(9);
 			Wire.write(screen_output);
 			Wire.endTransmission();
 			screen_display = screen_output;
-
 			delay(250);
+			if (/* si non*/){
+				// va reporter a sa place d origine la boite
+			}
+
+
+
 		}
 	}
-	// Remise de clees de chambres
+
+
+
+
+
+
+	// RESERVER CHAMBRE -- DEPOSER LES CLEES DE VOITURES -- OUI
 	else if (screen_display == 5)
 	{
 		if (ROBUS_IsBumper(3)) // CONFIRMER SÉLECTION
@@ -343,10 +413,10 @@ void loop()
 			// remet bouton a 1 lorsque confimer
 			bouton_selection = 1;
 
-			//****************************************
-			// a changer pour les clees de chambres
-			screen_output = 8;
-			//****************************************
+
+			// merci bonne journee
+			screen_output = 20;
+
 
 			// ENVOYER L'ACTION AU LCD
 			Wire.beginTransmission(9);
@@ -360,6 +430,14 @@ void loop()
 			screen_output = 0;
 		}
 	}
+
+
+
+
+
+
+
+
 	// RECUPERER SES CLEES
 	else if (screen_display == 6)
 	{
@@ -451,8 +529,15 @@ void loop()
 			delay(250);
 		}
 	}
+
+
+
+
+
+
+
 	// MERCI BONNE JOURNEE
-	else if (screen_display == 8)
+	else if (screen_display == 20)
 	{
 		if (ROBUS_IsBumper(3)) // CONFIRMER SÉLECTION ou Delay a decider
 		{
@@ -468,7 +553,15 @@ void loop()
 			screen_display = 10;
 			delay(250);
 		}
+
+
+		delay(5000);
+		screen_display = 10;
 	}
+
+
+
+
 }
 
 /*
