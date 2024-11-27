@@ -64,7 +64,7 @@ void AllerVersObjet(String Direction, int Distance){
 
     tourneGauche(90); // alerte
     //Serial.print("Tourne a Gauche");
-    avance(Direction);
+    //avance(Direction);
     //Serial.print("avance de ");
     //Serial.print(Direction);
   }
@@ -87,7 +87,7 @@ void AllerVersObjet(String Direction, int Distance){
     return 0;
   }
 
-  return result;
+  return 0;
  }
  int isObjectOutOfReach()
  {
@@ -146,6 +146,7 @@ float Detecteur_IR_Distance_TestMoyenne()// a modifie la sortie pour etre en cm 
  }
 // Reviser le Code
 int Detecteur_IR_Objet(){
+  int result;
   if(Detecteur_IR_Distance() != -1){
     DistanceObjet = Detecteur_IR_Distance();
     if(valeurDroiteIR >= valeurGaucheIR){

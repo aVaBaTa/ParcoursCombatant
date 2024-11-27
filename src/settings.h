@@ -5,6 +5,9 @@
 #include <Adafruit_TCS34725.h>
 
 #include "detecteur.h"
+#include "structure.h"
+
+
 
 
 // Coucou Xavier
