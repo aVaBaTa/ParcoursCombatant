@@ -409,7 +409,7 @@ void loop()
 
 
 
-	// doit rajouter une memoire lorsqu on scan pour savoir ou le robot doit aller porter la carte
+
 	// RESERVER CHAMBRE -- DEPOSER LES CLEES DE VOITURES -- OUI
 	else if (screen_display == 5)
 	{
@@ -435,6 +435,10 @@ void loop()
 		}
 	}
 
+
+
+
+// doit rajouter une memoire lorsqu on scan pour savoir ou le robot doit aller porter la carte
 	// RECUPERER SES CLEES
 	else if (screen_display == 6)
 	{
@@ -500,7 +504,7 @@ void loop()
 		delay(500); // a enlever
 
 		// a la fin de deplacement
-		screen_output = 3;
+		screen_output = 7;
 		bouton_selection = 1;
 		Wire.beginTransmission(9);
 		Wire.write(screen_output);
