@@ -28,7 +28,7 @@ int ChangeState = 0;
 
 
 int test;
-int isTesting = true;
+int isTesting = false;
 
 
 
@@ -92,7 +92,7 @@ void loop()
 
 
 
-    if (DisplayState == 0)
+    if (DisplayState == 0 || DisplayState == 10)
     {
         //myGLCD.clrScr();
         myGLCD.fillScreen(TFT_WHITE);
@@ -122,6 +122,8 @@ void loop()
         myGLCD.print("		Option 2 -> Recuperer ses clees", LEFT, 120);
 		// Va a DisplayState ==
         myGLCD.print("		Option 3 -> Livraison de colis", LEFT, 140);
+
+
         DisplayState = -1;
     }
 
@@ -230,17 +232,58 @@ void loop()
         myGLCD.print("* Recuperer ses cles *", CENTER, 25);
         //myGLCD.print("* Voulez Deposer vos clees de voitures? *", CENTER, 25);
         myGLCD.setTextSize(3);
-        myGLCD.print("Scanner votre carte", CENTER, 100);
+        myGLCD.print("Scanner votre cle de chambre", CENTER, 100);
+		// va a merci veuillez patienter
+		// va chercher la cle de voiture
+
         DisplayState = -1;
 
 		// retourne l etat 0 dans le main arduino
     }
+	if (DisplayState == 7)
+		{
+			myGLCD.fillScreen(TFT_WHITE);
+			myGLCD.setColor(0, 0, 255);
+			myGLCD.setBackColor(255, 255, 255);
+			myGLCD.setTextSize(3);
+			myGLCD.print("* Prendre vos clees *", CENTER, 25);
+			myGLCD.print(" de voitures ", CENTER, 50);
+			myGLCD.setTextSize(2);
+			myGLCD.print("* Appuyer sur le bouton vert *", CENTER, 75);
+			// va porter la boite a l emplacement pour les clees
+			DisplayState = -1;
+			// va a merci veuillez patienter
+
+
+			DisplayState = -1;
+
+			// retourne l etat 0 dans le main arduino
+		}
+
+	// veuillez Deposer vos cle de chambres
+	if (DisplayState == 8)
+    {
+      myGLCD.fillScreen(TFT_WHITE);
+        myGLCD.setColor(0, 0, 255);
+        myGLCD.setBackColor(255, 255, 255);
+        myGLCD.setTextSize(3);
+        myGLCD.print("* Deposer votre cle *", CENTER, 100);
+		myGLCD.print("  de chambre  ", CENTER, 120);
+		myGLCD.print("* Appuyer sur le bouton vert *", CENTER, 75);
+
+
+
+        DisplayState = -1;
+
+		// Merci Bonne journee
+	}
+
 
 
 
 
 	// livraison de colis
-	if (DisplayState == 7)
+	if (DisplayState == 12)
     {
         myGLCD.fillScreen(TFT_WHITE);
         myGLCD.setColor(0, 0, 255);
@@ -252,7 +295,7 @@ void loop()
         myGLCD.print("		Option 1 -> Chambre 1", LEFT, 100);
         myGLCD.print("		Option 2 -> Chambre 2", LEFT, 120);
 		myGLCD.print("		Option 3 -> Chambre 3", LEFT, 140);
-		myGLCD.print("		Option 4 -> Chambre 4", LEFT, 160);
+
         DisplayState = -1;
     }
 
