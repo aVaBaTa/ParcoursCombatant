@@ -10,7 +10,7 @@ char id_tag[20];
 char crecu;
 String id_carte = "";
 
-int identificationCarte(String IDCard)
+int Identification(String IDCard)
 {
 
 	int numCarte = 0, numChambre = 0;
@@ -74,6 +74,54 @@ int identificationCarte(String IDCard)
 	return numCarte;
 }
 
+
+
+
+
+
+struct chambre
+{
+    bool isDispo;
+    bool isKeyCar;
+    int numChambre;
+
+    bool isChambreDispo(){
+        return isDispo;
+    }
+
+    bool isCleDispo(){
+        return isKeyCar;
+    }
+
+    int numeroChambre(){
+        return numChambre;
+    }
+
+	void CleDispo(){
+		isDispo = true;
+	}
+
+};
+
+
+// gestion de la distribution des clees
+
+
+void DistributionChambre(){
+
+	// les structs
+
+
+
+
+}
+
+
+
+
+
+
+
 void setup()
 {
 
@@ -82,6 +130,11 @@ void setup()
 
 	Serial.begin(9600);
 	Serial.print("RESET");
+
+
+	//initialisation des structs
+
+
 }
 
 void loop()
@@ -251,7 +304,7 @@ void loop()
 					{
 						id_carte = id_carte + String(id_tag[i]);
 					}
-					key_num = identificationCarte(id_carte);
+					key_num = Identification(id_carte);
 					break;
 				default:
 					if (incoming)
@@ -272,49 +325,23 @@ void loop()
 				screen_display = screen_output;
 				delay(250);
 			}
-
-			/*
-			if (ROBUS_IsBumper(2)) // CHANGER SÉLECTION
-			{
-				if (bouton_selection < 2)
-				{
-					bouton_selection += 1;
-				}
-				else
-				{
-					bouton_selection = 1;
-				}
-				delay(250);
-			}
-			if (ROBUS_IsBumper(3)) // CONFIRMER SÉLECTION
-			{
-
-				// Si Oui || == 1 Mets en memoire deposer les clees
-				if (bouton_selection == 1)
-				{
-					// Mettre la Variable des clées a oui
-					screen_output = 3;
-				}
-				if (bouton_selection == 2)
-				{
-					screen_output = 4;
-				}
-
-				// remet bouton a 1 lorsque confimer
-				bouton_selection = 1;
-
-				// ENVOYER L'ACTION AU LCD
-				Wire.beginTransmission(9);
-				Wire.write(screen_output);
-				Wire.endTransmission();
-				screen_display = screen_output;
-				delay(250);*/
 		}
 		Serial2.end();
 		//condition logique de deplacement
 
 		//DEPLACEMENT
+		if ( key_num != 0){
 
+			beep(key_num);
+			DistributionChambre();
+
+
+			//logiqueMouvement(/*numero de carte*/);
+		}
+
+
+
+		delay(500);                   // a enlever
 
 
 		// a la fin de deplacement
@@ -390,9 +417,9 @@ void loop()
 			Wire.endTransmission();
 			screen_display = screen_output;
 			delay(250);
-			if (/* si non*/){
+			//if (/* si non*/){
 				// va reporter a sa place d origine la boite
-			}
+			//}
 
 
 
