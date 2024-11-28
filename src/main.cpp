@@ -384,7 +384,8 @@ void loop()
 			delay(250);
 		}
 		if (ROBUS_IsBumper(3)) // CONFIRMER SÉLECTION
-		{					   // OUI
+		{
+			 // OUI
 			if (bouton_selection == 1)
 			{
 				if (NumeroIdentification == 1){
@@ -399,7 +400,7 @@ void loop()
 				screen_output = 5;
 			}
 			// NON
-			if (bouton_selection == 2)
+			else if (bouton_selection == 2)
 			{
 				screen_output = 20;
 			}
@@ -421,11 +422,6 @@ void loop()
 			}
 		}
 	}
-
-
-
-
-
 	// RESERVER CHAMBRE -- DEPOSER LES CLEES DE VOITURES -- OUI
 	else if (screen_display == 5)
 	{
@@ -434,17 +430,6 @@ void loop()
 		{
 
 			// *************************** A MODIFIER LE NUMERO D IDENTIFICATION
-			screen_output = 21;
-			Wire.beginTransmission(9);
-			Wire.write(screen_output);
-			Wire.endTransmission();
-			screen_display = screen_output;
-			logiqueMouvement(NumeroIdentification, 2);
-
-			// mettre en memoire du numero de chambre que l emplacement de la cle est utiliser****
-
-
-
 			bouton_selection = 1;
 			// merci bonne journee
 			screen_output = 20;
@@ -453,17 +438,10 @@ void loop()
 			Wire.write(screen_output);
 			Wire.endTransmission();
 			screen_display = screen_output;
-			delay(5000);
+			logiqueMouvement(NumeroIdentification, 2);
 
-			// remettre a 0 le programme
-			screen_display = 0;
-			screen_output = 0;
 		}
 	}
-
-
-
-
 // doit rajouter une memoire lorsqu on scan pour savoir ou le robot doit aller porter la carte
 	// RECUPERER SES CLEES
 	else if (screen_display == 6)
@@ -629,6 +607,23 @@ void loop()
 	// LIVRAISON DE COLIS
 	else if (screen_display == 12)
 	{
+
+	if (ROBUS_IsBumper(2)) // CHANGER SÉLECTION
+		{
+			if (bouton_selection < 3)
+			{
+				bouton_selection += 1;
+			}
+			else
+			{
+				bouton_selection = 1;
+			}
+			delay(250);
+		}
+
+
+
+
 		if (ROBUS_IsBumper(3)) // CONFIRMER SÉLECTION
 		{
 			// remet bouton a 1 lorsque confimer
@@ -642,6 +637,7 @@ void loop()
 			Wire.write(screen_output);
 			Wire.endTransmission();
 			screen_display = screen_output;
+			logiqueMouvement(bouton_selection, 5);
 
 			delay(250);
 		}
@@ -655,6 +651,7 @@ void loop()
 	// MERCI BONNE JOURNEE
 	else if (screen_display == 20)
 	{
+		NumeroIdentification = 0;
 		// CONFIRMER SÉLECTION ou Delay a decider
 		delay(5000);
 		screen_output = 10;
