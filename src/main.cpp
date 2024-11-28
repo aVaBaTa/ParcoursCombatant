@@ -425,6 +425,11 @@ void loop()
 		{
 
 			// *************************** A MODIFIER LE NUMERO D IDENTIFICATION
+			screen_output = 21;
+			Wire.beginTransmission(9);
+			Wire.write(screen_output);
+			Wire.endTransmission();
+			screen_display = screen_output;
 			logiqueMouvement(NumeroIdentification, 2);
 
 			// mettre en memoire du numero de chambre que l emplacement de la cle est utiliser****
@@ -615,24 +620,18 @@ void loop()
 	// MERCI BONNE JOURNEE
 	else if (screen_display == 20)
 	{
-		if (ROBUS_IsBumper(3)) // CONFIRMER SÉLECTION ou Delay a decider
-		{
-
-			// LE CODE DE REMISE A 0 DE L'ECRAN
-			// remet bouton a 1 lorsque confimer
-			bouton_selection = 1;
-
-			// ENVOYER L'ACTION AU LCD
-			Wire.beginTransmission(9);
-			Wire.write(screen_output);
-			Wire.endTransmission();
-			screen_display = 10;
-			delay(250);
-		}
-		else {
-			delay(5000);
+		// CONFIRMER SÉLECTION ou Delay a decider
+		delay(5000);
+		screen_output = 10;
+		// LE CODE DE REMISE A 0 DE L'ECRAN
+		// remet bouton a 1 lorsque confimer
+		bouton_selection = 1;
+		// ENVOYER L'ACTION AU LCD
+		Wire.beginTransmission(9);
+		Wire.write(screen_output);
+		Wire.endTransmission();
 		screen_display = 10;
-		}
+		delay(250);
 	}
 }
 
