@@ -536,7 +536,7 @@ void loop()
 				}
 
 				if (action == 0){
-					beep(10);
+					beep(key_num);
 					screen_output = 10;
 					bouton_selection = 1;
 					Wire.beginTransmission(9);
