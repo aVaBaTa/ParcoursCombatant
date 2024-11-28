@@ -399,11 +399,6 @@ void loop()
 					Chambre3.isKeyCar = true;
 				}
 				screen_output = 5;
-
-
-			 // Enable ?
-
-			 	SERVO_Enable(LEFT);
 			}
 			// NON
 			else if (bouton_selection == 2)
@@ -444,7 +439,7 @@ void loop()
 			Wire.write(screen_output);
 			Wire.endTransmission();
 			screen_display = screen_output;
-			SERVO_Disable(LEFT);
+
 			logiqueMouvement(NumeroIdentification, 2);
 
 		}
