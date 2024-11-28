@@ -116,12 +116,12 @@ int DistributionChambre()
 		distribution = 1;
 		Chambre1.isDispo = false;
 	}
-	else if (Chambre1.isDispo == true)
+	else if (Chambre2.isDispo == true)
 	{
 		distribution = 2;
 		Chambre2.isDispo = false;
 	}
-	else if (Chambre1.isDispo == true)
+	else if (Chambre3.isDispo == true)
 	{
 		distribution = 3;
 		Chambre3.isDispo = false;
