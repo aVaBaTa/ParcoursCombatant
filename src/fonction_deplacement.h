@@ -11,7 +11,7 @@ float KP1 = 0.0015; // Constante proportionnelle pour le contrôle PID ()
 
 int etat = -1; // = 0 arrêt 1 = avance 2 = recule 3 = TourneDroit 4 = TourneGauche
 int etatPast = 0;
-float vitesse = 0.35;
+float vitesse = 0.30;
 int x = 0;			 // x = 0 initialisation et représente la coordonnée x de la case de départ
 int y = 0;			 // y = 0 initialisation et représente la coordonnée y de la case de départ
 int regardeFace = 0; // Regarde à : AVANT = 0, GAUCHE = -1, DERRIÈRE = 2 ou -2, DROITE = 1
@@ -39,7 +39,7 @@ int ligneGauche = 0;
 int ligneMilieu = 0;
 int ligneDroite = 0;
 int lastCheck = 0;
-int seuilSuiveurLigne = 270;
+int seuilSuiveurLigne = 275;
 int verification = 0;
 
 void AjusterVitesse(uint32_t difference, uint32_t droit, uint32_t gauche)
@@ -320,7 +320,7 @@ void Virage(String direction, String avance_recule, int angle_desire)
 	// À DÉTERMINER NMBR DE PULSES : AVANCE UN PEU RENDU À L'INTERSECTION POUR BIEN SE RÉAJUSTER
 	if (avance_recule == "avance")
 	{
-		avance(200);
+		avance(300);
 	}
 	else if (avance_recule == "recule")
 	{
@@ -383,191 +383,199 @@ void Virage(String direction, String avance_recule, int angle_desire)
 
 
 
-void logiqueMouvement(){
-
-	if (move_state == 0)//stand by
-	{
-		arret();
-	}
 
 
-	if (move_state == 1) //CHECK IN
-	{
 
-		Virage("gauche", "", 180);
-		suivreLigneIntersect(2);
-		Virage("droite", "avance", 90);
-		suivreLigneIntersect(key_num);
-		Virage("gauche", "avance", 90);
-		suivreLigneIntersect(1);
+void ramasserObjet(){
+  SERVO_SetAngle(LEFT,90);
+}
 
+void lacherObjet(){
+  SERVO_SetAngle(LEFT,180);
+}
 
-		//prend la cle sur etagere
+void InclinerBrasHaut()
+{
+    SERVO_SetAngle(RIGHT, 170);
+}
+void InclinerBrasBas()
+{
+    SERVO_SetAngle(RIGHT, 180);
+}
 
+void PinceRamasseObjet()
+{
+    // OUVRE LA PINCE
+    lacherObjet();
+    delay(200);
+    // AVANCE POUR UN TEL NOMBRE DE PULSES À DÉTERMINER POUR AJUSTER LA PINCE EN AVANT DE L'ÉTAGÈRE
+    avance(100);
+    // Ramasse l'objet
+    ramasserObjet();
+    // RECULE POUR NE PAS FONCER DANS L'ÉTAGÈRE QUAND IL VA SE RETOURNER SUR PLACE
+    recule(1000);
+}
+void PinceLacherObjet()
+{
+    InclinerBrasHaut();
+    avance(100);
 
-		Virage("gauche", "recule", 180);
-		suivreLigneIntersect(1);
-		Virage("droite", "avance", 90);
-		suivreLigneIntersect(key_num);
-		Virage("gauche", "avance", 90);
-		suivreLigneIntersect(2);
-		//arrete pour que le client prenne sa cle de chambre
-		arret();
+    lacherObjet();
 
-		//besoin de input du LCD pour confirmer que le client a pris sa clé
-		// Simon : Faire la fonction du LCD ici
+    // RECULE POUR NE PAS FONCER DANS L'ÉTAGÈRE QUAND IL VA SE RETOURNER SUR PLACE
+    recule(1000);
+    InclinerBrasBas();
+}
 
-		if ( car_key ) { // Si le client possède une clé
-			//demande au client de deposer ses cles de voiture
-			//le robot va porter la cle de voiture sur l etagere
-			Virage("gauche", "", 180);
-			suivreLigneIntersect(2);
-			Virage("gauche", "avance", 90);
-			suivreLigneIntersect(key_num);
-			//turn 90 deg right
-			Virage("droite", "avance", 90);
-			// va sur point orange
-			suivreLigneIntersect(1);
-			//deposit car key (FONCTION POUR PINCE)
-			Virage("gauche", "recule", 180);
-			suivreLigneIntersect(1);
-			//turn 90 deg left
-			Virage("gauche", "avance", 90);
-			suivreLigneIntersect(key_num);
-			Virage("droite", "avance", 90);
-			suivreLigneIntersect(2);
-			arret();
-		}
-		//AFFICHAGE LCD POUR MENU (bienvenue)
-		//pour reset
-		move_state = 0;
-		car_key = false;
-	}
-	if (move_state == 2) //Checkout
-	{
-		if ( car_key ) { //check out avec recuperation de clés
-			//le robot va porter la cle de voiture sur l etagere
-			Virage("gauche", "", 180);
-			suivreLigneIntersect(2);
-			Virage("gauche", "avance", 90);
-			suivreLigneIntersect(key_num); //note: key number is the same as the # of intersections
-			//turn 90 deg right
-			Virage("droite", "avance", 90);
-			// va sur point orange
-			suivreLigneIntersect(1);
+void logiqueMouvement(int p_num_identification, int move_state){
 
-			//deposit car key (FONCTION POUR PINCE)
+    if (move_state == 0 /*|| p_num_identification == -1*/)//stand by
+    {
+        arret();
+    }
 
-			Virage("gauche", "recule", 180);
-			suivreLigneIntersect(1);
-			//turn 90 deg left
-			Virage("gauche", "avance", 90);
-			suivreLigneIntersect(key_num);
-			Virage("droite", "avance", 90);
-			suivreLigneIntersect(2);
-			arret();
-		}
+    if (move_state == 1) // CHECK IN (SEULEMENT CHERCHER CLÉS DE CHAMBRE)
+    {
 
-		// À AJOUTER (Simon)
-		//demande au client de deposer sa cle de chambre
-		//va porter la cle de chambre sur l etagere
+        Virage("gauche", "", 180);
+        suivreLigneIntersect(2);
+        Virage("droite", "avance", 90);
+        suivreLigneIntersect(p_num_identification);
+        Virage("gauche", "avance", 90);
+        suivreLigneIntersect(1);
 
 
-		Virage("gauche", "", 180);
-		//follow the line until it sees two intersections
-		suivreLigneIntersect(2);
-		Virage("droite", "avance", 90);
-		suivreLigneIntersect(key_num);
-		Virage("gauche", "avance", 90);
-		suivreLigneIntersect(1);
-
-		// dépose sa clé sur l'étagère (pince)
-
-		Virage("gauche", "recule", 180);
-		suivreLigneIntersect(1);
-		Virage("droite", "avance", 90);
-		suivreLigneIntersect(key_num);
-		Virage("gauche", "avance", 90);
-		suivreLigneIntersect(2);
-		arret();
-		//AFFICHAGE LCD POUR MENU
-		//pour reset ( revenir en stand_by i.e. start)
-		move_state = 0;
-		car_key = false;
-	}
-	if (move_state == 3) //service clés de voiture seulement retour et recuperation
-	{
+        //prend la cle sur etagere
+        PinceRamasseObjet();
 
 
-		//make function to turn gauche (180 deg)
-		Virage("gauche", "", 180);
-		//follow the line until it sees two intersections
-		suivreLigneIntersect(2);
-		Virage("gauche", "avance", 90);
-		suivreLigneIntersect(key_num); //note: key number is the same as the # of intersections
-		Virage("droite", "avance", 90);
-		// va sur point orange
-		suivreLigneIntersect(1);
+        Virage("gauche", "recule", 180);
+        suivreLigneIntersect(1);
+        Virage("droite", "avance", 90);
+        suivreLigneIntersect(p_num_identification);
+        Virage("gauche", "avance", 90);
+        suivreLigneIntersect(2);
+        //arrete pour que le client prenne sa cle de chambre
+        arret();
+    }
+    if (move_state == 2) // CHECK IN (SEULEMENT DÉPOSER CLÉS DE VOITURE)
+    {
+            Virage("gauche", "", 180);
+            suivreLigneIntersect(2);
+            Virage("gauche", "avance", 90);
+            suivreLigneIntersect(p_num_identification);
+            //turn 90 deg right
+            Virage("droite", "avance", 90);
+            // va sur point orange
+            suivreLigneIntersect(1);
 
-		//deposit car key (FONCTION POUR PINCE)
+            //dépose les clés de voiture
+            PinceLacherObjet();
 
-		Virage("gauche", "recule", 180);
-		suivreLigneIntersect(1);
-		Virage("gauche", "avance", 90);
-		//va sur point orange
-		suivreLigneIntersect(key_num);
-		Virage("droite", "avance", 90);
-		suivreLigneIntersect(2);
-		//AFFICHAGE LCD POUR MENU
-		//pour reset
-		move_state = 0;
-		car_key = false;
+            Virage("gauche", "recule", 180);
+            suivreLigneIntersect(1);
+            //turn 90 deg left
+            Virage("gauche", "avance", 90);
+            suivreLigneIntersect(p_num_identification);
+            Virage("droite", "avance", 90);
+            suivreLigneIntersect(2);
+            arret();
+    }
 
-	}
-	if (move_state == 4) //service livraison (colis)
-	{
-		//AJOUTER FONCTION RFID POUR VALIDER QUE CEST BIEN UN EMPLOYER AVANT
-		//DAVOIR ACCÈS AU SERVICE LIVRAISON
-		//make function to turn gauche (180 deg)
-		Virage("gauche", "", 180);
-		//follow the line until it sees two intersections
-		suivreLigneIntersect(1);
-		Virage("gauche", "avance", 90);
-		suivreLigneIntersect(1);
-		Virage("gauche", "avance", 90);
-		suivreLigneIntersect(1);
-		Virage("gauche", "avance", 180);
-		suivreLigneIntersect(1);
-		Virage("droite", "avance", 90);
-		suivreLigneIntersect(2);
-			if ( key_num == 1){
-			suivreLigneIntersect(1);
-			//drop colis
-			recule(1000); //À REVOIR AVEC TEST (besoin de reculer pour dposer colis) (peut-être utiliser même fonction de la pince pour déposer boites de clés)
-			//make function to turn gauche (180 deg)
-			Virage("gauche", "recule", 180);
-			suivreLigneIntersect(2);
-			}
-			else{
-			Virage("droite", "avance", 90);
-			suivreLigneIntersect(key_num -1);
-			Virage("gauche", "avance", 90);
-			suivreLigneIntersect(1);
-			recule(1000); //À REVOIR AVEC TEST (besoin de reculer pour dposer colis)
-			Virage("gauche", "avance", 180);
-			suivreLigneIntersect(1);
-			Virage("droite", "avance", 90);
-			suivreLigneIntersect(key_num -1);
-			Virage("gauche", "avance", 90);
-			suivreLigneIntersect(1);
-			}
-		Virage("gauche", "avance", 90);
-		suivreLigneIntersect(1);
-		//Affichage LCD pour menu
-		//pour reset
-		move_state = 0;
-		car_key = false;
-	}
+
+    if (move_state == 3) // CHECK OUT (SEULEMENT CHERCHER CLÉS DE VOITURE)
+    {
+
+        Virage("gauche", "", 180);
+        suivreLigneIntersect(2);
+        Virage("gauche", "avance", 90);
+        suivreLigneIntersect(p_num_identification);
+        Virage("droite", "avance", 90);
+        suivreLigneIntersect(1);
+
+
+        //prend la cle sur etagere
+        PinceRamasseObjet();
+
+
+        Virage("gauche", "recule", 180);
+        suivreLigneIntersect(1);
+        Virage("gauche", "avance", 90);
+        suivreLigneIntersect(p_num_identification);
+        Virage("droite", "avance", 90);
+        suivreLigneIntersect(2);
+        //arrete pour que le client prenne sa cle de chambre
+        arret();
+    }
+        if (move_state == 4) // CHECK OUT (SEULEMENT DÉPOSER CLÉS DE CHAMBRE)
+    {
+
+        Virage("gauche", "", 180);
+        suivreLigneIntersect(2);
+        Virage("droite", "avance", 90);
+        suivreLigneIntersect(p_num_identification);
+        Virage("gauche", "avance", 90);
+        suivreLigneIntersect(1);
+
+
+        //prend la cle sur etagere
+        PinceLacherObjet();
+
+
+        Virage("gauche", "recule", 180);
+        suivreLigneIntersect(1);
+        Virage("droite", "avance", 90);
+        suivreLigneIntersect(p_num_identification);
+        Virage("gauche", "avance", 90);
+        suivreLigneIntersect(2);
+        //arrete pour que le client prenne sa cle de chambre
+        arret();
+    }
+
+
+    if (move_state == 5) //service livraison (colis)
+    {
+        //AJOUTER FONCTION RFID POUR VALIDER QUE CEST BIEN UN EMPLOYER AVANT
+        //DAVOIR ACCÈS AU SERVICE LIVRAISON
+        //make function to turn gauche (180 deg)
+        Virage("gauche", "", 180);
+        //follow the line until it sees two intersections
+        suivreLigneIntersect(1);
+        Virage("gauche", "avance", 90);
+        suivreLigneIntersect(1);
+        Virage("gauche", "avance", 90);
+        suivreLigneIntersect(1);
+        Virage("gauche", "avance", 180);
+        suivreLigneIntersect(1);
+        Virage("droite", "avance", 90);
+        suivreLigneIntersect(2);
+            if ( p_num_identification == 1){
+            suivreLigneIntersect(1);
+            //drop colis
+            recule(1000); //À REVOIR AVEC TEST (besoin de reculer pour dposer colis) (peut-être utiliser même fonction de la pince pour déposer boites de clés)
+            //make function to turn gauche (180 deg)
+            Virage("gauche", "recule", 180);
+            suivreLigneIntersect(2);
+            }
+            else{
+            Virage("droite", "avance", 90);
+            suivreLigneIntersect(p_num_identification -1);
+            Virage("gauche", "avance", 90);
+            suivreLigneIntersect(1);
+            recule(1000); //À REVOIR AVEC TEST (besoin de reculer pour dposer colis)
+            Virage("gauche", "avance", 180);
+            suivreLigneIntersect(1);
+            Virage("droite", "avance", 90);
+            suivreLigneIntersect(p_num_identification -1);
+            Virage("gauche", "avance", 90);
+            suivreLigneIntersect(1);
+            }
+        Virage("gauche", "avance", 90);
+        suivreLigneIntersect(1);
+        //Affichage LCD pour menu
+        //pour reset
+    }
 
 }
+
 

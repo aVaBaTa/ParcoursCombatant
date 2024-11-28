@@ -87,6 +87,8 @@ chambre Chambre1;
 chambre Chambre2;
 chambre Chambre3;
 
+int NumeroIdentification;
+
 void setup()
 {
 
@@ -137,6 +139,7 @@ void loop()
 	{
 		if (ROBUS_IsBumper(3))
 		{
+			key_num = 0;
 			beep(3);
 			screen_output = 1;
 			Wire.beginTransmission(9);
@@ -276,6 +279,7 @@ void loop()
 		Serial2.begin(9600);
 		while (screen_display == 2 /* modifier pour variable de scanne*/)
 		{
+			key_num = 0;
 			Serial.print("Screen : Paiment");
 			if (Serial2.available() > 0)
 			{
@@ -325,10 +329,9 @@ void loop()
 		// DEPLACEMENT
 		if (key_num != 0)
 		{
-
-			int NumeroIdentification = DistributionChambre();
+			NumeroIdentification = DistributionChambre();
 			beep(NumeroIdentification);
-			// logiqueMouvement(NumeroIdentification, 1);
+			logiqueMouvement(NumeroIdentification, 1);
 		}
 
 		delay(500); // a enlever
@@ -381,14 +384,12 @@ void loop()
 		{					   // OUI
 			if (bouton_selection == 1)
 			{
-				// METTRE LE CODE POUR ALLER A LA CHAMBRE 1
 				screen_output = 5;
 			}
 			// NON
 			if (bouton_selection == 2)
 			{
 				screen_output = 20;
-				// va porter la boite a sa place d origine
 			}
 
 			// remet bouton a 1 lorsque confimer
@@ -400,9 +401,12 @@ void loop()
 			Wire.endTransmission();
 			screen_display = screen_output;
 			delay(250);
-			// if (/* si non*/){
-			//  va reporter a sa place d origine la boite
-			//}
+
+
+			if (screen_output == 20){
+			  //va reporter a sa place d origine la boite
+			  logiqueMouvement(NumeroIdentification, 4);
+			}
 		}
 	}
 
@@ -413,8 +417,15 @@ void loop()
 	// RESERVER CHAMBRE -- DEPOSER LES CLEES DE VOITURES -- OUI
 	else if (screen_display == 5)
 	{
+
 		if (ROBUS_IsBumper(3)) // CONFIRMER SÉLECTION
 		{
+
+			// *************************** A MODIFIER LE NUMERO D IDENTIFICATION
+			logiqueMouvement(NumeroIdentification, 2);
+
+			// mettre en memoire du numero de chambre que l emplacement de la cle est utiliser****
+
 
 			// remet bouton a 1 lorsque confimer
 			bouton_selection = 1;
@@ -495,10 +506,14 @@ void loop()
 		// DEPLACEMENT
 		if (key_num != 0)
 		{
+			// mettre en memoire
+			// verifier les dispo des boites*****
+
+
 
 			int NumeroIdentification = key_num;
 			beep(NumeroIdentification);
-			// logiqueMouvement(NumeroIdentification, 1);
+			logiqueMouvement(NumeroIdentification, 3);
 		}
 
 		delay(500); // a enlever
@@ -542,6 +557,9 @@ void loop()
 			delay(250);
 			// deplacement
 
+			// modifier***
+			beep(NumeroIdentification);
+			logiqueMouvement(NumeroIdentification, 4); // peut etre erreur
 
 
 
@@ -557,6 +575,7 @@ void loop()
 			screen_display = screen_output;
 
 			delay(250);
+
 		}
 
 	}
@@ -570,7 +589,6 @@ void loop()
 	{
 		if (ROBUS_IsBumper(3)) // CONFIRMER SÉLECTION
 		{
-
 			// remet bouton a 1 lorsque confimer
 			bouton_selection = 1;
 
@@ -586,7 +604,6 @@ void loop()
 		}
 
 	}
-
 
 
 
@@ -609,9 +626,10 @@ void loop()
 			screen_display = 10;
 			delay(250);
 		}
-
-		delay(5000);
+		else {
+			delay(5000);
 		screen_display = 10;
+		}
 	}
 }
 
