@@ -102,6 +102,9 @@ void setup()
 	Chambre1.numChambre = 1;
 	Chambre2.numChambre = 2;
 	Chambre3.numChambre = 3;
+	initialiserPinceEtBras();
+	SERVO_Disable(RIGHT);
+	SERVO_Disable(LEFT);
 }
 
 // return la distribution de la chambre

@@ -32,14 +32,14 @@ int move_state = 0; // état initial du mouvement du robot
 bool car_key = false; // booléen pour vérifier si le robot a une clé de voiture
 
 // Pour le suiveur de ligne
-int CaptLeft = A10; // A changer si PIN inverse
+int CaptLeft = A13; // A changer si PIN inverse
 int CaptMid = A11;
 int CaptRight = A12; // A changer si PIN inverse
 int ligneGauche = 0;
 int ligneMilieu = 0;
 int ligneDroite = 0;
 int lastCheck = 0;
-int seuilSuiveurLigne = 275;
+int seuilSuiveurLigne = 230;
 int verification = 0;
 
 void AjusterVitesse(uint32_t difference, uint32_t droit, uint32_t gauche)
@@ -116,8 +116,8 @@ void avance(int nombre_pulses)
 	resetEncodeurs();
 	while (pulses_droit < nombre_pulses) // 6300 représente le nombre de pulses avant que la fonction avancer arrête
 	{
-		MOTOR_SetSpeed(RIGHT, vitesse);
-		MOTOR_SetSpeed(LEFT, vitesse);
+		MOTOR_SetSpeed(RIGHT, 0.75 * vitesse);
+		MOTOR_SetSpeed(LEFT, 0.75 * vitesse);
 		pulses_droit = ENCODER_Read(RIGHT);
 		pulses_gauche = ENCODER_Read(LEFT);
 		PID(pulses_droit, pulses_gauche);
@@ -375,7 +375,7 @@ void Virage(String direction, String avance_recule, int angle_desire)
 	}
 	// À DÉTERMINER : SI LE ROBOT EST DROIT À 100% SUR LA LIGNE AVANT DE TOURNER ET QU'IL N'Y A PAS DE DELAY IL VA ARRETER
 	// AVEC UN PETIT ANGLE
-	delay(60);
+	delay(150);
 	// AVANCE POUR ETRE SUR QUE LE SUIVEUR DE LIGNE NE DÉTECTE PAS LE CARRÉ QUAND IL RÉEXÉCUTE UNE AUTRE FONCTION
 	avance(200);
 	pause();
@@ -383,48 +383,91 @@ void Virage(String direction, String avance_recule, int angle_desire)
 
 
 
-
-
+void initialiserPinceEtBras(){
+	SERVO_SetAngle(RIGHT,80); //BRAS
+	//delay(2600);
+  	SERVO_SetAngle(LEFT,155); //PINCE
+}
 
 void ramasserObjet(){
-  SERVO_SetAngle(LEFT,90);
+	int angle = 155;
+	for (int i = 0; i < 80; i++)
+	{
+		angle --;
+		SERVO_SetAngle(LEFT,angle);
+		//delay(10);
+
+	}
 }
 
 void lacherObjet(){
-  SERVO_SetAngle(LEFT,180);
+	int angle = 75;
+	for (int i = 0; i < 80; i++)
+	{
+		angle ++;
+		SERVO_SetAngle(LEFT,angle);
+		//delay(10);
+
+	}
 }
 
-void InclinerBrasHaut()
+void LeverBras()
 {
-    SERVO_SetAngle(RIGHT, 170);
+	int angle = 80;
+	for (int i = 0; i < 35; i++)
+	{
+		angle ++;
+		SERVO_SetAngle(RIGHT,angle);
+		delay(20);
+
+	}
 }
-void InclinerBrasBas()
+void BaisserBras()
 {
-    SERVO_SetAngle(RIGHT, 180);
+	int angle = 115;
+	for (int i = 0; i < 35; i++)
+	{
+		angle --;
+		SERVO_SetAngle(RIGHT,angle);
+		delay(20);
+
+	}
 }
 
 void PinceRamasseObjet()
 {
     // OUVRE LA PINCE
+	SERVO_Enable(LEFT);
+	SERVO_Enable(RIGHT);
     lacherObjet();
-    delay(200);
+    delay(1000);
+	
     // AVANCE POUR UN TEL NOMBRE DE PULSES À DÉTERMINER POUR AJUSTER LA PINCE EN AVANT DE L'ÉTAGÈRE
-    avance(100);
+    //avance(1000);
     // Ramasse l'objet
     ramasserObjet();
+	delay(1000);
+	LeverBras();
+	delay(1000);
+	SERVO_Disable(LEFT);
     // RECULE POUR NE PAS FONCER DANS L'ÉTAGÈRE QUAND IL VA SE RETOURNER SUR PLACE
-    recule(1000);
+    //recule(1000);
 }
 void PinceLacherObjet()
 {
-    InclinerBrasHaut();
-    avance(100);
+	SERVO_Enable(RIGHT);
+	SERVO_Enable(LEFT);
+    BaisserBras();
+    //avance(1000);
 
     lacherObjet();
+	delay(1000);
+	SERVO_Disable(LEFT);
+	SERVO_Disable(RIGHT);
 
     // RECULE POUR NE PAS FONCER DANS L'ÉTAGÈRE QUAND IL VA SE RETOURNER SUR PLACE
-    recule(1000);
-    InclinerBrasBas();
+    //recule(1000);
+	delay(2600);
 }
 
 void logiqueMouvement(int p_num_identification, int move_state){
@@ -443,6 +486,7 @@ void logiqueMouvement(int p_num_identification, int move_state){
         suivreLigneIntersect(p_num_identification);
         Virage("gauche", "avance", 90);
         suivreLigneIntersect(1);
+		arret();
 
 
         //prend la cle sur etagere
@@ -468,6 +512,7 @@ void logiqueMouvement(int p_num_identification, int move_state){
             Virage("droite", "avance", 90);
             // va sur point orange
             suivreLigneIntersect(1);
+			arret();
 
             //dépose les clés de voiture
             PinceLacherObjet();
@@ -492,6 +537,7 @@ void logiqueMouvement(int p_num_identification, int move_state){
         suivreLigneIntersect(p_num_identification);
         Virage("droite", "avance", 90);
         suivreLigneIntersect(1);
+		arret();
 
 
         //prend la cle sur etagere
