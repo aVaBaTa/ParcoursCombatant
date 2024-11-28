@@ -140,6 +140,7 @@ void loop()
 	// MENU BIENVENUE
 	if (screen_display == 0 || screen_display == 10)
 	{
+		NumeroIdentification = 0;
 		if (ROBUS_IsBumper(3))
 		{
 			key_num = 0;
@@ -398,6 +399,11 @@ void loop()
 					Chambre3.isKeyCar = true;
 				}
 				screen_output = 5;
+
+
+			 // Enable ?
+
+			 	SERVO_Enable(LEFT);
 			}
 			// NON
 			else if (bouton_selection == 2)
@@ -438,6 +444,7 @@ void loop()
 			Wire.write(screen_output);
 			Wire.endTransmission();
 			screen_display = screen_output;
+			SERVO_Disable(LEFT);
 			logiqueMouvement(NumeroIdentification, 2);
 
 		}
