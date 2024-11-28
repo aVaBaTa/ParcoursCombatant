@@ -387,6 +387,15 @@ void loop()
 		{					   // OUI
 			if (bouton_selection == 1)
 			{
+				if (NumeroIdentification == 1){
+					Chambre1.isKeyCar = true;
+				}
+				if (NumeroIdentification == 2){
+					Chambre2.isKeyCar = true;
+				}
+				if (NumeroIdentification == 3){
+					Chambre3.isKeyCar = true;
+				}
 				screen_output = 5;
 			}
 			// NON
@@ -435,12 +444,10 @@ void loop()
 			// mettre en memoire du numero de chambre que l emplacement de la cle est utiliser****
 
 
-			// remet bouton a 1 lorsque confimer
-			bouton_selection = 1;
 
+			bouton_selection = 1;
 			// merci bonne journee
 			screen_output = 20;
-
 			// ENVOYER L'ACTION AU LCD
 			Wire.beginTransmission(9);
 			Wire.write(screen_output);
@@ -461,7 +468,7 @@ void loop()
 	// RECUPERER SES CLEES
 	else if (screen_display == 6)
 	{
-
+		int action = 0;
 		Serial2.begin(9600);
 		while (screen_display == 6 /* modifier pour variable de scanne*/)
 		{
@@ -518,11 +525,37 @@ void loop()
 			// verifier les dispo des boites*****
 
 
+				if (key_num == 1 && Chambre1.isKeyCar == true){
+					action = 1;
+				}
+				else if (key_num == 3 && Chambre2.isKeyCar == true){
+					action = 1;
+				}
+				else if (key_num == 2 && Chambre3.isKeyCar == true){
+					action = 1;
+				}
 
-			int NumeroIdentification = key_num;
-			beep(NumeroIdentification);
-			logiqueMouvement(NumeroIdentification, 3);
+				if (action == 0){
+					beep(10);
+					screen_output = 10;
+					bouton_selection = 1;
+					Wire.beginTransmission(9);
+					Wire.write(screen_output);
+					Wire.endTransmission();
+					screen_display = screen_output;
+					delay(250);
+
+				}
+				else if ( action == 1){
+					int NumeroIdentification = key_num;
+					beep(NumeroIdentification);
+					logiqueMouvement(NumeroIdentification, 3);
+				}
+
+
 		}
+		if (action == 1){
+
 
 		delay(500); // a enlever
 
@@ -534,6 +567,7 @@ void loop()
 		Wire.endTransmission();
 		screen_display = screen_output;
 		delay(250);
+		}
 	}
 
 	// Prendre les clees
@@ -601,7 +635,8 @@ void loop()
 			bouton_selection = 1;
 
 			// Renvoie a reserver la chambre
-			screen_output = 4;
+			//pas encore implementer
+			screen_output = 20;
 			// ENVOYER L'ACTION AU LCD
 			Wire.beginTransmission(9);
 			Wire.write(screen_output);
