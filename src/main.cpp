@@ -629,7 +629,7 @@ void loop()
 		if (ROBUS_IsBumper(3)) // CONFIRMER SÉLECTION
 		{
 			// remet bouton a 1 lorsque confimer
-			bouton_selection = 1;
+
 
 			// Renvoie a reserver la chambre
 			//pas encore implementer
