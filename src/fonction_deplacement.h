@@ -11,13 +11,14 @@ float KP1 = 0.0015; // Constante proportionnelle pour le contrôle PID ()
 
 int etat = -1; // = 0 arrêt 1 = avance 2 = recule 3 = TourneDroit 4 = TourneGauche
 int etatPast = 0;
-float vitesse = 0.30;
+float vitesse = 0.35;
 int x = 0;			 // x = 0 initialisation et représente la coordonnée x de la case de départ
 int y = 0;			 // y = 0 initialisation et représente la coordonnée y de la case de départ
 int regardeFace = 0; // Regarde à : AVANT = 0, GAUCHE = -1, DERRIÈRE = 2 ou -2, DROITE = 1
 int last_move = 0;	 // est = 1 si x==0 et que le dernier movement est setorientation(1)
 int key_num;
 bool verification_ligne = true;
+int lastmovee = 0;
 
 
 enum MoveState {
@@ -39,7 +40,7 @@ int ligneGauche = 0;
 int ligneMilieu = 0;
 int ligneDroite = 0;
 int lastCheck = 0;
-int seuilSuiveurLigne = 230;
+int seuilSuiveurLigne = 150;
 int verification = 0;
 
 void AjusterVitesse(uint32_t difference, uint32_t droit, uint32_t gauche)
@@ -120,8 +121,8 @@ void avance(int nombre_pulses)
 		MOTOR_SetSpeed(LEFT, 0.75 * vitesse);
 		pulses_droit = ENCODER_Read(RIGHT);
 		pulses_gauche = ENCODER_Read(LEFT);
-		PID(pulses_droit, pulses_gauche);
-		delay(50);
+		//PID(pulses_droit, pulses_gauche);
+		//delay(50);
 	}
 	resetEncodeurs();
 	while (pulses_droit < 300)
@@ -145,8 +146,8 @@ void recule(int nmbr_pulses)
 	resetEncodeurs();
 	while (pulses_droit < nmbr_pulses)
 	{
-		MOTOR_SetSpeed(RIGHT, -vitesse);
-		MOTOR_SetSpeed(LEFT, -vitesse);
+		MOTOR_SetSpeed(RIGHT, 0.75 * -vitesse);
+		MOTOR_SetSpeed(LEFT, 0.75 * -vitesse);
 		pulses_droit = abs(ENCODER_Read(RIGHT));
 		pulses_gauche = abs(ENCODER_Read(LEFT));
 	}
@@ -230,8 +231,8 @@ void ajusterdroite()
 		Serial.print("Valeur du capteur du milieu : ");
 		Serial.println(ligneMilieu);*/
 
-		MOTOR_SetSpeed(RIGHT, 0.68 * vitesse);
-		MOTOR_SetSpeed(LEFT, 0.75*vitesse);
+		MOTOR_SetSpeed(RIGHT, .55 * vitesse);
+		MOTOR_SetSpeed(LEFT, .75 *vitesse);
 		pulses_gauche = ENCODER_Read(LEFT);
 	}
 }
@@ -252,8 +253,8 @@ void ajustergauche()
 		Serial.print("Valeur du capteur du milieu : ");
 		Serial.println(ligneMilieu);*/
 
-		MOTOR_SetSpeed(RIGHT, 0.75 * vitesse);
-		MOTOR_SetSpeed(LEFT, 0.67 * vitesse);
+		MOTOR_SetSpeed(RIGHT, .75 * vitesse);
+		MOTOR_SetSpeed(LEFT, .55 * vitesse);
 		pulses_droit = ENCODER_Read(RIGHT);
 	}
 }
@@ -306,6 +307,20 @@ void suivreLigneIntersect(int num_intersect){
 
 			}
 		}
+		/*if (ligneDroite < seuilSuiveurLigne && ligneGauche < seuilSuiveurLigne && ligneMilieu < seuilSuiveurLigne && lastmovee == 0)
+		{
+			arret();
+			delay(200);
+			tourneDroit(300);
+			lastmovee = 1;
+		}
+		if (ligneDroite < seuilSuiveurLigne && ligneGauche < seuilSuiveurLigne && ligneMilieu < seuilSuiveurLigne && lastmovee == 1)
+		{
+			arret();
+			delay(200);
+			tourneGauche(300);
+			lastmovee = 0;
+		}*/
 	}
 
 }
@@ -320,11 +335,11 @@ void Virage(String direction, String avance_recule, int angle_desire)
 	// À DÉTERMINER NMBR DE PULSES : AVANCE UN PEU RENDU À L'INTERSECTION POUR BIEN SE RÉAJUSTER
 	if (avance_recule == "avance")
 	{
-		avance(300);
+		avance(500);
 	}
 	else if (avance_recule == "recule")
 	{
-		recule(300);
+		recule(700);
 	}
 
 	if (angle_desire == 90)
@@ -375,9 +390,12 @@ void Virage(String direction, String avance_recule, int angle_desire)
 	}
 	// À DÉTERMINER : SI LE ROBOT EST DROIT À 100% SUR LA LIGNE AVANT DE TOURNER ET QU'IL N'Y A PAS DE DELAY IL VA ARRETER
 	// AVEC UN PETIT ANGLE
-	delay(150);
+	delay(70);
 	// AVANCE POUR ETRE SUR QUE LE SUIVEUR DE LIGNE NE DÉTECTE PAS LE CARRÉ QUAND IL RÉEXÉCUTE UNE AUTRE FONCTION
-	avance(200);
+	if (avance_recule != "recule")
+	{
+		avance(50);
+	}
 	pause();
 }
 
@@ -453,6 +471,26 @@ void PinceRamasseObjet()
     // RECULE POUR NE PAS FONCER DANS L'ÉTAGÈRE QUAND IL VA SE RETOURNER SUR PLACE
     //recule(1000);
 }
+
+void PinceRamasseColis()
+{
+    // OUVRE LA PINCE
+	SERVO_Enable(LEFT);
+	SERVO_Enable(RIGHT);
+	BaisserBras();
+    lacherObjet();
+    delay(1000);
+	
+    // AVANCE POUR UN TEL NOMBRE DE PULSES À DÉTERMINER POUR AJUSTER LA PINCE EN AVANT DE L'ÉTAGÈRE
+    //avance(1000);
+    // Ramasse l'objet
+    ramasserObjet();
+	delay(1000);
+	//LeverBras();
+	//delay(1000);
+    // RECULE POUR NE PAS FONCER DANS L'ÉTAGÈRE QUAND IL VA SE RETOURNER SUR PLACE
+    //recule(1000);
+}
 void PinceLacherObjet()
 {
 	SERVO_Enable(RIGHT);
@@ -469,6 +507,24 @@ void PinceLacherObjet()
     //recule(1000);
 	delay(2600);
 }
+
+void PinceLacherColis()
+{
+	SERVO_Enable(RIGHT);
+	SERVO_Enable(LEFT);
+    BaisserBras();
+    //avance(1000);
+
+    lacherObjet();
+	delay(1000);
+	SERVO_Disable(LEFT);
+	SERVO_Disable(RIGHT);
+
+    // RECULE POUR NE PAS FONCER DANS L'ÉTAGÈRE QUAND IL VA SE RETOURNER SUR PLACE
+    //recule(1000);
+	delay(2600);
+}
+
 
 void logiqueMouvement(int p_num_identification, int move_state){
 
@@ -494,6 +550,7 @@ void logiqueMouvement(int p_num_identification, int move_state){
 
 
         Virage("gauche", "recule", 180);
+		tourneGauche(200);
         suivreLigneIntersect(1);
         Virage("droite", "avance", 90);
         suivreLigneIntersect(p_num_identification);
@@ -518,6 +575,7 @@ void logiqueMouvement(int p_num_identification, int move_state){
             PinceLacherObjet();
 
             Virage("gauche", "recule", 180);
+			tourneGauche(200);
             suivreLigneIntersect(1);
             //turn 90 deg left
             Virage("gauche", "avance", 90);
@@ -545,6 +603,7 @@ void logiqueMouvement(int p_num_identification, int move_state){
 
 
         Virage("gauche", "recule", 180);
+		tourneGauche(200);
         suivreLigneIntersect(1);
         Virage("gauche", "avance", 90);
         suivreLigneIntersect(p_num_identification);
@@ -562,6 +621,7 @@ void logiqueMouvement(int p_num_identification, int move_state){
         suivreLigneIntersect(p_num_identification);
         Virage("gauche", "avance", 90);
         suivreLigneIntersect(1);
+		arret();
 
 
         //prend la cle sur etagere
@@ -569,6 +629,7 @@ void logiqueMouvement(int p_num_identification, int move_state){
 
 
         Virage("gauche", "recule", 180);
+		tourneGauche(200);
         suivreLigneIntersect(1);
         Virage("droite", "avance", 90);
         suivreLigneIntersect(p_num_identification);
@@ -591,25 +652,34 @@ void logiqueMouvement(int p_num_identification, int move_state){
         suivreLigneIntersect(1);
         Virage("gauche", "avance", 90);
         suivreLigneIntersect(1);
-        Virage("gauche", "avance", 180);
+		arret();
+		PinceRamasseColis();
+        Virage("gauche", "recule", 180);
+		tourneGauche(200);
         suivreLigneIntersect(1);
+
         Virage("droite", "avance", 90);
         suivreLigneIntersect(2);
             if ( p_num_identification == 1){
+			avance(500);
             suivreLigneIntersect(1);
             //drop colis
-            recule(1000); //À REVOIR AVEC TEST (besoin de reculer pour dposer colis) (peut-être utiliser même fonction de la pince pour déposer boites de clés)
-            //make function to turn gauche (180 deg)
+			arret();
+            lacherObjet();
+
             Virage("gauche", "recule", 180);
+			tourneGauche(200);
             suivreLigneIntersect(2);
             }
-            else{
+           else{
             Virage("droite", "avance", 90);
             suivreLigneIntersect(p_num_identification -1);
             Virage("gauche", "avance", 90);
             suivreLigneIntersect(1);
-            recule(1000); //À REVOIR AVEC TEST (besoin de reculer pour dposer colis)
-            Virage("gauche", "avance", 180);
+            arret();
+            lacherObjet();
+            Virage("gauche", "recule", 180);
+			tourneGauche(200);
             suivreLigneIntersect(1);
             Virage("droite", "avance", 90);
             suivreLigneIntersect(p_num_identification -1);
@@ -618,6 +688,7 @@ void logiqueMouvement(int p_num_identification, int move_state){
             }
         Virage("gauche", "avance", 90);
         suivreLigneIntersect(1);
+		arret();
         //Affichage LCD pour menu
         //pour reset
     }
