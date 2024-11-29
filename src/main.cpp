@@ -133,6 +133,9 @@ int DistributionChambre()
 void loop()
 {
 	Serial.print(screen_display);
+	ligneMilieu = analogRead(CaptMid);
+	Serial.println(ligneMilieu);
+
 
 	// event
 	// move_state = 0;
@@ -140,6 +143,7 @@ void loop()
 	// MENU BIENVENUE
 	if (screen_display == 0 || screen_display == 10)
 	{
+
 		NumeroIdentification = 0;
 		if (ROBUS_IsBumper(3))
 		{

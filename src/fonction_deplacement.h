@@ -33,15 +33,15 @@ int move_state = 0; // état initial du mouvement du robot
 bool car_key = false; // booléen pour vérifier si le robot a une clé de voiture
 
 // Pour le suiveur de ligne
-int CaptLeft = A13; // A changer si PIN inverse
-int CaptMid = A11;
-int CaptRight = A12; // A changer si PIN inverse
+int CaptLeft = A13; // A changer si PIN inverse // Orange
+int CaptMid = A11; // Jaune
+int CaptRight = A12; // A changer si PIN inverse //Bleu
 int ligneGauche = 0;
 int ligneMilieu = 0;
 int ligneDroite = 0;
 int lastCheck = 0;
 // a ajuster
-int seuilSuiveurLigne = 120;
+int seuilSuiveurLigne = 350;
 int verification = 0;
 
 void AjusterVitesse(uint32_t difference, uint32_t droit, uint32_t gauche)
@@ -128,8 +128,8 @@ void avance(int nombre_pulses)
 	resetEncodeurs();
 	while (pulses_droit < 300)
 	{
-		MOTOR_SetSpeed(RIGHT, 0.5 * vitesse);
-		MOTOR_SetSpeed(LEFT, 0.5 * vitesse);
+		MOTOR_SetSpeed(RIGHT, 0.3 * vitesse);
+		MOTOR_SetSpeed(LEFT, 0.3 * vitesse);
 		pulses_droit = ENCODER_Read(RIGHT);
 	}
 	pause();
@@ -232,8 +232,8 @@ void ajusterdroite()
 		Serial.print("Valeur du capteur du milieu : ");
 		Serial.println(ligneMilieu);*/
 
-		MOTOR_SetSpeed(RIGHT, .55 * vitesse);
-		MOTOR_SetSpeed(LEFT, .75 *vitesse);
+		MOTOR_SetSpeed(RIGHT, .60 * vitesse);
+		MOTOR_SetSpeed(LEFT, .85 * vitesse);
 		pulses_gauche = ENCODER_Read(LEFT);
 	}
 }
@@ -254,8 +254,8 @@ void ajustergauche()
 		Serial.print("Valeur du capteur du milieu : ");
 		Serial.println(ligneMilieu);*/
 
-		MOTOR_SetSpeed(RIGHT, .75 * vitesse);
-		MOTOR_SetSpeed(LEFT, .55 * vitesse);
+		MOTOR_SetSpeed(RIGHT, .85 * vitesse);
+		MOTOR_SetSpeed(LEFT, .60 * vitesse);
 		pulses_droit = ENCODER_Read(RIGHT);
 	}
 }
@@ -300,7 +300,7 @@ void suivreLigneIntersect(int num_intersect){
 			{
 				if (i != (num_intersect - 1))
 				{
-					avance(500);
+					avance(650);
 				}
 				i++;
 
@@ -308,19 +308,12 @@ void suivreLigneIntersect(int num_intersect){
 
 			}
 		}
-		/*if (ligneDroite < seuilSuiveurLigne && ligneGauche < seuilSuiveurLigne && ligneMilieu < seuilSuiveurLigne && lastmovee == 0)
-		{
-			arret();
-			delay(200);
-			tourneDroit(300);
-			lastmovee = 1;
+		/*if (ligneDroite > seuilSuiveurLigne && ligneMilieu > seuilSuiveurLigne) {
+			ajusterdroite();
 		}
-		if (ligneDroite < seuilSuiveurLigne && ligneGauche < seuilSuiveurLigne && ligneMilieu < seuilSuiveurLigne && lastmovee == 1)
-		{
-			arret();
-			delay(200);
-			tourneGauche(300);
-			lastmovee = 0;
+		if (ligneGauche > seuilSuiveurLigne && ligneMilieu > seuilSuiveurLigne){
+			ajustergauche();
+
 		}*/
 	}
 
@@ -340,7 +333,7 @@ void Virage(String direction, String avance_recule, int angle_desire)
 	}
 	else if (avance_recule == "recule")
 	{
-		recule(700);
+		recule(600);
 	}
 
 	if (angle_desire == 90)
@@ -391,7 +384,7 @@ void Virage(String direction, String avance_recule, int angle_desire)
 	}
 	// À DÉTERMINER : SI LE ROBOT EST DROIT À 100% SUR LA LIGNE AVANT DE TOURNER ET QU'IL N'Y A PAS DE DELAY IL VA ARRETER
 	// AVEC UN PETIT ANGLE
-	delay(70);
+	delay(180);
 	// AVANCE POUR ETRE SUR QUE LE SUIVEUR DE LIGNE NE DÉTECTE PAS LE CARRÉ QUAND IL RÉEXÉCUTE UNE AUTRE FONCTION
 	if (avance_recule != "recule")
 	{
@@ -410,7 +403,7 @@ void initialiserPinceEtBras(){
 
 void ramasserObjet(){
 	int angle = 155;
-	for (int i = 0; i < 80; i++)
+	for (int i = 0; i < 85; i++)
 	{
 		angle --;
 		SERVO_SetAngle(LEFT,angle);
@@ -420,8 +413,8 @@ void ramasserObjet(){
 }
 
 void lacherObjet(){
-	int angle = 75;
-	for (int i = 0; i < 80; i++)
+	int angle = 70;
+	for (int i = 0; i < 85; i++)
 	{
 		angle ++;
 		SERVO_SetAngle(LEFT,angle);
@@ -538,6 +531,7 @@ void logiqueMouvement(int p_num_identification, int move_state){
     {
 
         Virage("gauche", "", 180);
+		tourneGauche(100);
         suivreLigneIntersect(2);
         Virage("droite", "avance", 90);
         suivreLigneIntersect(p_num_identification);
@@ -551,7 +545,7 @@ void logiqueMouvement(int p_num_identification, int move_state){
 
 
         Virage("gauche", "recule", 180);
-		tourneGauche(200);
+		tourneGauche(150);
         suivreLigneIntersect(1);
         Virage("droite", "avance", 90);
         suivreLigneIntersect(p_num_identification);
@@ -576,7 +570,7 @@ void logiqueMouvement(int p_num_identification, int move_state){
             PinceLacherObjet();
 
             Virage("gauche", "recule", 180);
-			tourneGauche(200);
+			tourneGauche(150);
             suivreLigneIntersect(1);
             //turn 90 deg left
             Virage("gauche", "avance", 90);
@@ -604,7 +598,7 @@ void logiqueMouvement(int p_num_identification, int move_state){
 
 
         Virage("gauche", "recule", 180);
-		tourneGauche(200);
+		tourneGauche(150);
         suivreLigneIntersect(1);
         Virage("gauche", "avance", 90);
         suivreLigneIntersect(p_num_identification);
@@ -630,7 +624,7 @@ void logiqueMouvement(int p_num_identification, int move_state){
 
 
         Virage("gauche", "recule", 180);
-		tourneGauche(200);
+		tourneGauche(150);
         suivreLigneIntersect(1);
         Virage("droite", "avance", 90);
         suivreLigneIntersect(p_num_identification);
