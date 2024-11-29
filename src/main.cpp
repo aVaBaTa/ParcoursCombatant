@@ -149,8 +149,8 @@ void loop()
 			Wire.beginTransmission(9);
 			Wire.write(screen_output);
 			Wire.endTransmission();
-			screen_display = screen_output;
 			bouton_selection = 1;
+			screen_display = screen_output;
 			delay(250);
 		}
 	}
@@ -253,7 +253,7 @@ void loop()
 				screen_output = 2;
 				if (Chambre1.isDispo == false && Chambre2.isDispo == false && Chambre3.isDispo == false)
 			{
-				beep(20);
+				//beep(20);
 				// AFFICHER PAS DE CHAMBRE DISPONIBLE
 				screen_output = 9;
 			}
@@ -512,15 +512,15 @@ void loop()
 
 				if (key_num == 1 && Chambre1.isKeyCar == true){
 					action = 1;
-					Chambre1.isKeyCar == false;
+					Chambre1.isKeyCar = false;
 				}
-				else if (key_num == 3 && Chambre2.isKeyCar == true){
+				else if (key_num == 2 && Chambre2.isKeyCar == true){
 					action = 1;
-					Chambre2.isKeyCar == false;
+					Chambre2.isKeyCar = false;
 				}
-				else if (key_num == 2 && Chambre3.isKeyCar == true){
+				else if (key_num == 3 && Chambre3.isKeyCar == true){
 					action = 1;
-					Chambre3.isKeyCar == false;
+					Chambre3.isKeyCar = false;
 				}
 
 				if (action == 0){
@@ -531,38 +531,30 @@ void loop()
 					delay(250);
 
 				}
-				else if ( action == 1){
-					int NumeroIdentification = key_num;
-					beep(NumeroIdentification);
+				if ( action == 1){
+					NumeroIdentification = key_num;
+					//beep(NumeroIdentification);
 					if (NumeroIdentification == 1){
 						logiqueMouvement( 1, 3);
 					}
-					if (NumeroIdentification == 1){
+					if (NumeroIdentification == 2){
 						logiqueMouvement( 2, 3);
 					}
-					if (NumeroIdentification == 1){
+					if (NumeroIdentification == 3){
 						logiqueMouvement( 3, 3);
 					}
+					delay(500); // a enlever
 
+					// a la fin de deplacement
+					screen_output = 7;
+					bouton_selection = 1;
+					Wire.beginTransmission(9);
+					Wire.write(screen_output);
+					Wire.endTransmission();
+					screen_display = screen_output;
+					delay(250);
 				}
-
-
 		}
-		if (action == 1){
-
-
-		delay(500); // a enlever
-
-		// a la fin de deplacement
-		screen_output = 7;
-		bouton_selection = 1;
-		Wire.beginTransmission(9);
-		Wire.write(screen_output);
-		Wire.endTransmission();
-		screen_display = screen_output;
-		delay(250);
-		}
-
 	}
 	// Prendre les clees
 	else if (screen_display == 7)

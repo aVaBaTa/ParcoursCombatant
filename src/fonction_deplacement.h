@@ -11,7 +11,7 @@ float KP1 = 0.0015; // Constante proportionnelle pour le contrôle PID ()
 
 int etat = -1; // = 0 arrêt 1 = avance 2 = recule 3 = TourneDroit 4 = TourneGauche
 int etatPast = 0;
-float vitesse = 0.35;
+float vitesse = 0.32;
 int x = 0;			 // x = 0 initialisation et représente la coordonnée x de la case de départ
 int y = 0;			 // y = 0 initialisation et représente la coordonnée y de la case de départ
 int regardeFace = 0; // Regarde à : AVANT = 0, GAUCHE = -1, DERRIÈRE = 2 ou -2, DROITE = 1
@@ -40,7 +40,7 @@ int ligneGauche = 0;
 int ligneMilieu = 0;
 int ligneDroite = 0;
 int lastCheck = 0;
-int seuilSuiveurLigne = 150;
+int seuilSuiveurLigne = 120;
 int verification = 0;
 
 void AjusterVitesse(uint32_t difference, uint32_t droit, uint32_t gauche)
@@ -459,7 +459,7 @@ void PinceRamasseObjet()
 	SERVO_Enable(RIGHT);
     lacherObjet();
     delay(1000);
-	
+
     // AVANCE POUR UN TEL NOMBRE DE PULSES À DÉTERMINER POUR AJUSTER LA PINCE EN AVANT DE L'ÉTAGÈRE
     //avance(1000);
     // Ramasse l'objet
@@ -480,7 +480,7 @@ void PinceRamasseColis()
 	BaisserBras();
     lacherObjet();
     delay(1000);
-	
+
     // AVANCE POUR UN TEL NOMBRE DE PULSES À DÉTERMINER POUR AJUSTER LA PINCE EN AVANT DE L'ÉTAGÈRE
     //avance(1000);
     // Ramasse l'objet
