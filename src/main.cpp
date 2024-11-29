@@ -510,17 +510,20 @@ void loop()
 			// verifier les dispo des boites*****
 
 
-				if (key_num == 1 && Chambre1.isKeyCar == true){
+				if (key_num == 1 && Chambre1.isKeyCar == true && Chambre1.isDispo == false){
 					action = 1;
 					Chambre1.isKeyCar = false;
+					Chambre1.isDispo = true;
 				}
-				else if (key_num == 2 && Chambre2.isKeyCar == true){
+				else if (key_num == 2 && Chambre2.isKeyCar == true && Chambre2.isDispo == false){
 					action = 1;
 					Chambre2.isKeyCar = false;
+					Chambre2.isDispo = true;
 				}
-				else if (key_num == 3 && Chambre3.isKeyCar == true){
+				else if (key_num == 3 && Chambre3.isKeyCar == true && Chambre3.isDispo == false){
 					action = 1;
 					Chambre3.isKeyCar = false;
+					Chambre3.isDispo = true;
 				}
 
 				if (action == 0){
