@@ -640,7 +640,7 @@ void loop()
 
 	}
 	// AUCUNE CLE N EST DISPONIBLE
-	else if (screen_display == 9){
+	else if (screen_display == 11){
 		delay(5000);
 		screen_output = 20;
 		// LE CODE DE REMISE A 0 DE L'ECRAN
