@@ -639,8 +639,18 @@ void loop()
 			Wire.write(screen_output);
 			Wire.endTransmission();
 			screen_display = screen_output;
-			logiqueMouvement(bouton_selection, 5);
-
+			beep(bouton_selection);
+			if (bouton_selection == 1){
+				logiqueMouvement(1, 5);
+			}
+			if (bouton_selection == 2){
+				logiqueMouvement(2, 5);
+			}
+			if (bouton_selection == 3){
+				logiqueMouvement(3, 5);
+			}
+			//logiqueMouvement(bouton_selection, 5);
+			bouton_selection = 1;
 			delay(250);
 		}
 
