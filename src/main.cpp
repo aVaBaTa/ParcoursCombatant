@@ -507,29 +507,38 @@ void loop()
 
 				if (key_num == 1 && Chambre1.isKeyCar == true){
 					action = 1;
+					Chambre1.isKeyCar == false;
 				}
 				else if (key_num == 3 && Chambre2.isKeyCar == true){
 					action = 1;
+					Chambre2.isKeyCar == false;
 				}
 				else if (key_num == 2 && Chambre3.isKeyCar == true){
 					action = 1;
+					Chambre3.isKeyCar == false;
 				}
 
 				if (action == 0){
 					beep(key_num);
-					screen_output = 10;
+					screen_output = 20;
 					bouton_selection = 1;
-					Wire.beginTransmission(9);
-					Wire.write(screen_output);
-					Wire.endTransmission();
-					screen_display = screen_output;
+					screen_display = 8;
 					delay(250);
 
 				}
 				else if ( action == 1){
 					int NumeroIdentification = key_num;
 					beep(NumeroIdentification);
-					logiqueMouvement(NumeroIdentification, 3);
+					if (NumeroIdentification == 1){
+						logiqueMouvement( 1, 3);
+					}
+					if (NumeroIdentification == 1){
+						logiqueMouvement( 2, 3);
+					}
+					if (NumeroIdentification == 1){
+						logiqueMouvement( 3, 3);
+					}
+
 				}
 
 
@@ -548,8 +557,8 @@ void loop()
 		screen_display = screen_output;
 		delay(250);
 		}
-	}
 
+	}
 	// Prendre les clees
 	else if (screen_display == 7)
 	{
@@ -571,7 +580,7 @@ void loop()
 		}
 
 	}
-	// Prendre les clees
+	// DEPOSER CLEE DE CHAMBRE
 	else if (screen_display == 8)
 	{
 		if (ROBUS_IsBumper(3)) // CONFIRMER SÉLECTION
@@ -581,7 +590,16 @@ void loop()
 
 			// modifier***
 			beep(NumeroIdentification);
-			logiqueMouvement(NumeroIdentification, 4); // peut etre erreur
+			if (NumeroIdentification == 1){
+				logiqueMouvement(1, 4);
+			}
+			if (NumeroIdentification == 2){
+				logiqueMouvement(2, 4);
+			}
+			if (NumeroIdentification == 3){
+				logiqueMouvement(3, 4);
+			}
+			 // peut etre erreur
 
 
 
@@ -601,11 +619,6 @@ void loop()
 		}
 
 	}
-
-
-
-
-
 	// LIVRAISON DE COLIS
 	else if (screen_display == 12)
 	{
@@ -655,11 +668,6 @@ void loop()
 		}
 
 	}
-
-
-
-
-
 	// MERCI BONNE JOURNEE
 	else if (screen_display == 20)
 	{
