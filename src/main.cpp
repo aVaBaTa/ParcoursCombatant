@@ -251,12 +251,13 @@ void loop()
 			if (bouton_selection == 1)
 			{
 				screen_output = 2;
-			}
-			if (Chambre1.isDispo == false && Chambre2.isDispo == false && Chambre3.isDispo == false)
+				if (Chambre1.isDispo == false && Chambre2.isDispo == false && Chambre3.isDispo == false)
 			{
 				beep(20);
 				// AFFICHER PAS DE CHAMBRE DISPONIBLE
 			}
+			}
+
 
 			if (bouton_selection == 2)
 			{
