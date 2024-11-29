@@ -119,7 +119,11 @@ void loop()
 		// Va a DisplayState == 2
         myGLCD.print("		Option 1 -> Reserver une chambre", LEFT, 100);
 		// Va a DisplayState ==
+<<<<<<< Updated upstream
         myGLCD.print("		Option 2 -> Recuperer ses clees", LEFT, 120);
+=======
+        myGLCD.print("		Option 2 -> Recuperer ses cles", LEFT, 120);
+>>>>>>> Stashed changes
 		// Va a DisplayState ==
         myGLCD.print("		Option 3 -> Livraison de colis", LEFT, 140);
 
@@ -148,11 +152,19 @@ void loop()
         myGLCD.setColor(0, 0, 255);
         myGLCD.setBackColor(255, 255, 255);
         myGLCD.setTextSize(3);
+<<<<<<< Updated upstream
         myGLCD.print("* Voici votre clee *", CENTER, 25);
 		myGLCD.print(" de chambre ", CENTER, 50);
 		myGLCD.setTextSize(2);
         myGLCD.print("* Appuyer sur le bouton vert *", CENTER, 75);
 		myGLCD.print(" apres avoir recuperer votre clee ", CENTER, 90);
+=======
+        myGLCD.print("* Voici votre cle *", CENTER, 25);
+		myGLCD.print(" de chambre ", CENTER, 50);
+		myGLCD.setTextSize(2);
+        myGLCD.print("* Appuyer sur le bouton vert *", CENTER, 75);
+		myGLCD.print(" apres avoir recuperer votre cle ", CENTER, 90);
+>>>>>>> Stashed changes
 		// garde la boite
         DisplayState = -1;
     }
@@ -166,7 +178,11 @@ void loop()
         myGLCD.setTextSize(3);
         myGLCD.print("* Reserver une chambre *", CENTER, 25);
 		myGLCD.setTextSize(2);
+<<<<<<< Updated upstream
         myGLCD.print("*Voulez Deposer vos clees de voitures?*", CENTER, 45);
+=======
+        myGLCD.print("*Voulez Deposer vos cles de voitures?*", CENTER, 45);
+>>>>>>> Stashed changes
         myGLCD.setTextSize(2);
 		// VA A 5
         myGLCD.print("		Option 1 -> Oui", LEFT, 100);
@@ -183,7 +199,11 @@ void loop()
         myGLCD.setColor(0, 0, 255);
         myGLCD.setBackColor(255, 255, 255);
         myGLCD.setTextSize(3);
+<<<<<<< Updated upstream
         myGLCD.print("* Deposer vos clees *", CENTER, 25);
+=======
+        myGLCD.print("* Deposer vos cles *", CENTER, 25);
+>>>>>>> Stashed changes
 		myGLCD.print(" de voitures ", CENTER, 50);
 		myGLCD.setTextSize(2);
 		myGLCD.print("* Appuyer sur le bouton vert *", CENTER, 75);
@@ -232,7 +252,12 @@ void loop()
         myGLCD.print("* Recuperer ses cles *", CENTER, 25);
         //myGLCD.print("* Voulez Deposer vos clees de voitures? *", CENTER, 25);
         myGLCD.setTextSize(3);
+<<<<<<< Updated upstream
         myGLCD.print("Scanner votre cle de chambre", CENTER, 100);
+=======
+        myGLCD.print("Scanner votre", CENTER, 100);
+		myGLCD.print("cle de chambre", CENTER, 150);
+>>>>>>> Stashed changes
 		// va a merci veuillez patienter
 		// va chercher la cle de voiture
 
@@ -246,7 +271,11 @@ void loop()
 			myGLCD.setColor(0, 0, 255);
 			myGLCD.setBackColor(255, 255, 255);
 			myGLCD.setTextSize(3);
+<<<<<<< Updated upstream
 			myGLCD.print("* Prendre vos clees *", CENTER, 25);
+=======
+			myGLCD.print("* Prendre vos cles *", CENTER, 25);
+>>>>>>> Stashed changes
 			myGLCD.print(" de voitures ", CENTER, 50);
 			myGLCD.setTextSize(2);
 			myGLCD.print("* Appuyer sur le bouton vert *", CENTER, 75);
@@ -269,7 +298,12 @@ void loop()
         myGLCD.setTextSize(3);
         myGLCD.print("* Deposer votre cle *", CENTER, 100);
 		myGLCD.print("  de chambre  ", CENTER, 120);
+<<<<<<< Updated upstream
 		myGLCD.print("* Appuyer sur le bouton vert *", CENTER, 75);
+=======
+		myGLCD.setTextSize(2);
+		myGLCD.print("* Appuyer sur le bouton vert *", CENTER, 150);
+>>>>>>> Stashed changes
 
 
 
@@ -279,6 +313,43 @@ void loop()
 	}
 
 
+<<<<<<< Updated upstream
+=======
+	// AUCUNE CHAMBRE DISPONIBLE
+	if (DisplayState == 9)
+    {
+      myGLCD.fillScreen(TFT_WHITE);
+        myGLCD.setColor(0, 0, 255);
+        myGLCD.setBackColor(255, 255, 255);
+        myGLCD.setTextSize(3);
+        myGLCD.print("* AUCUNE CHAMBRE *", CENTER, 100);
+		myGLCD.print("  DISPONIBLE  ", CENTER, 150);
+
+        DisplayState = -1;
+
+
+	}
+
+	// AUCUNE CLEE N EST ENTREPOSEe
+	if (DisplayState == 11)
+    {
+      myGLCD.fillScreen(TFT_WHITE);
+        myGLCD.setColor(0, 0, 255);
+        myGLCD.setBackColor(255, 255, 255);
+        myGLCD.setTextSize(3);
+        myGLCD.print("* AUCUNE CLE *", CENTER, 100);
+		 myGLCD.print("* N'EST ENTREPOSEE *", CENTER, 150);
+
+
+
+
+        DisplayState = -1;
+
+
+	}
+
+
+>>>>>>> Stashed changes
 
 
 
@@ -331,7 +402,12 @@ void loop()
         myGLCD.setColor(0, 0, 255);
         myGLCD.setBackColor(255, 255, 255);
         myGLCD.setTextSize(3);
+<<<<<<< Updated upstream
         myGLCD.print("* Merci veuillez patienter *", CENTER, 100);
+=======
+        myGLCD.print("* Merci *", CENTER, 100);
+		myGLCD.print("* veuillez patienter *", CENTER, 150);
+>>>>>>> Stashed changes
 
         DisplayState = -1;
     }
