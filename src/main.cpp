@@ -255,13 +255,17 @@ void loop()
 			{
 				beep(20);
 				// AFFICHER PAS DE CHAMBRE DISPONIBLE
+				screen_output = 9;
 			}
 			}
 
 
 			if (bouton_selection == 2)
-			{
+			{   // RECUPERER
 				screen_output = 6;
+				if (Chambre1.isKeyCar == false && Chambre2.isKeyCar == false && Chambre3.isKeyCar == false){
+					screen_output = 11;
+				}
 			}
 			if (bouton_selection == 3)
 			{
@@ -618,6 +622,36 @@ void loop()
 			delay(250);
 
 		}
+
+	}
+	// aucune chambre disponible
+	else if (screen_display == 9){
+		delay(5000);
+		screen_output = 20;
+		// LE CODE DE REMISE A 0 DE L'ECRAN
+		// remet bouton a 1 lorsque confimer
+		bouton_selection = 1;
+		// ENVOYER L'ACTION AU LCD
+		Wire.beginTransmission(9);
+		Wire.write(screen_output);
+		Wire.endTransmission();
+		screen_display = screen_output;
+		delay(250);
+
+	}
+	// AUCUNE CLE N EST DISPONIBLE
+	else if (screen_display == 9){
+		delay(5000);
+		screen_output = 20;
+		// LE CODE DE REMISE A 0 DE L'ECRAN
+		// remet bouton a 1 lorsque confimer
+		bouton_selection = 1;
+		// ENVOYER L'ACTION AU LCD
+		Wire.beginTransmission(9);
+		Wire.write(screen_output);
+		Wire.endTransmission();
+		screen_display = screen_output;
+		delay(250);
 
 	}
 	// LIVRAISON DE COLIS
